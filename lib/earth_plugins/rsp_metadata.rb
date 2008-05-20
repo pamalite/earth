@@ -12,7 +12,7 @@ class RspMetadata < EarthPlugin
   
   
   # TODO: add method comments
-  def self.file_metadata(file)
+  def file_metadata(file)
     # Find the parent directory for the given file
     # TODO: catch any exception (record not found, etc)
     directory = Earth::Directory.find(file.directory_id)
@@ -24,16 +24,15 @@ class RspMetadata < EarthPlugin
   end
   
   # TODO: add method comments
-  def self.search_by(key, value)
+  def search_by(key, value)
     
   end
   
-  #TODO: make it private
-  #private
+  
+  private
   
   # TODO: add method comments
-  # TODO: remove 'self'
-  def self.parse_path(path)
+  def parse_path(path)
     metadata = {}
     # split the path into tokens
     tokens = path.split('/')
@@ -52,8 +51,7 @@ class RspMetadata < EarthPlugin
   end
   
   # TODO: add method comments
-  # TODO: remove 'self'
-  def self.match_one_of(keys, test)
+  def match_one_of(keys, test)
     keys.each do |key|
       if test =~ Regexp.new(key)
         return keys.index(key)
@@ -63,8 +61,7 @@ class RspMetadata < EarthPlugin
   end
   
   # TODO: add method comments
-  # TODO: remove 'self'
-  def self.extract_value(key, test)
+  def extract_value(key, test)
     test.sub(Regexp.new(key), "")
   end
   
