@@ -1,11 +1,11 @@
 # This class provide methods for managing RSP metadata
-# 
-# Author:: Mohammad Bamogaddam
-
-
+#
+# Author:: Mohammad Bamogaddam ,Qing Yang
+ 
+ 
 class RspMetadata < EarthPlugin
   
-  # constant variable used to save rsp naming convention 
+  # constant variable used to save rsp naming convention
   RSP_KEYS = ["job","sequence","shot"]
   
   # the +rsp_keys+ method returns array of rsp keys
@@ -14,16 +14,16 @@ class RspMetadata < EarthPlugin
   end
   
   
-  # the +file_metadata+ method returns hash of keys and values 
+  # the +file_metadata+ method returns hash of keys and values
   # representing the passed file metadata
   # === Parameters
   # * _file_ = a file object, represent a record in files table
   #
   # === Example
-  #   r = RspMetadata.new
-  #   f1 = Earth::File.find(:first, :conditions => ["name = ?", "pic_003.jpg"])
-  #   r.file_metadata(f1) => {"job" => "", "sequence" => "", "shot" => ""}
-  # 
+  # r = RspMetadata.new
+  # f1 = Earth::File.find(:first, :conditions => ["name = ?", "pic_003.jpg"])
+  # r.file_metadata(f1) => {"job" => "", "sequence" => "", "shot" => ""}
+  #
   def file_metadata(file)
     # Find the parent directory for the given file
     # TODO: catch any exception (record not found, etc)
@@ -34,13 +34,46 @@ class RspMetadata < EarthPlugin
     metadata = parse_path(path)
     return metadata
   end
+   
+  
+  
   
   # TODO: add method comments
-  def search_by(key, value)
-    
-  end
+  # The search_by(key,value) method is writen by QING Yang
   
+  # Both key and value are from the input of view, which are entered by users.
+  # If key and value are not blank, we find out all the files which include the key and value pairs.
+  # It means if we assume the key is "job" and the value is "A",then the method return all the files 
+  # which have the key and value pairs like ("job","A").
+  @rsp_files=Array.new
   
+   
+   def search_by(key,value)
+     
+      rsp_name=value
+      rsp_name="*" if rsp_name.blank?
+         
+      rsp_key=key
+      rsp_key="*" if rsp_key.blank?
+      
+      if rsp_name!="*"&& rsp_key!="*"
+        
+       mkvps=Earth::Metadata_key_value_pair.find(:all,:condituons=>
+                                             ["metadata_key_value_pairs.attribute_key LIKE %?%"+\
+                                              "metadata_key_value_pairs.attribute_value LIKE %?%",
+                                               key,value]
+                                                                )
+           mkvps.each do |m|
+            id=m.file_id
+            file=Earth::File.find(id)   
+             @rsp_files.push(file)
+           end
+                                                                
+       return @rsp_files
+        
+   end
+   
+   
   private
   
   # the +parse_path+ parses a given path looking for keys
