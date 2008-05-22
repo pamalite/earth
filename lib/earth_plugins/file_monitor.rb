@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+require "rsp_metadata.rb"
 
 class FileMonitor < EarthPlugin
   cattr_accessor :log_all_sql
@@ -256,8 +257,24 @@ private
     end
   end
   
+  #allows saving of metadata information into database table
+  def save_file_metadata(file_id, metadata)
+	@rspmeta = RspMetadata.new
+    RSP_KEYS = @rspmeta.rsp_keys
+	#@RSP_KEYS = ["job","sequence","shot"]
+	# :metadata_key_value_pairs
+	i=0
+	while i < RSP_KEYS.length do
+		Earth::metadata_key_value_pairs.create(:file_id => file_id,  :key => RSP_KEYS[i],  :value => metadata[RSP_KEYS[i]])
+		i+=1
+	end
+  end
+  
+  
   def update_non_recursive(directory, options)
-
+  
+	@rspmeta = RspMetadata.new
+	
     directory_count = 1
 
     begin
@@ -324,6 +341,7 @@ private
         added_file_names.each do |name|
           Earth::File.benchmark("Creating file with name #{name}", Logger::DEBUG, !log_all_sql) do
             directory.files.create(:name => name, :stat => stats[name])
+			
           end
         end
 
@@ -331,9 +349,14 @@ private
           directory_files = directory.files.to_ary.clone
           
           directory_files.each do |file|
+			
             # If the file still exists
             if file_names.include?(file.name)
               logger.debug("checking for update on file #{file.name}")
+			  
+			  #adding code to acquire metadata - update
+			  save_file_metadata(file.id, @rspmeta.file_metaData(file))
+			  
               # If the file has changed
               if file.stat != stats[file.name]
                 file.stat = stats[file.name]
