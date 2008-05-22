@@ -58,16 +58,15 @@ class RspMetadata < EarthPlugin
       
       if rsp_name!="*"&& rsp_key!="*"
         
-       mkvps=Earth::Metadata_key_value_pair.find(:all,:condituons=>
-                                             ["metadata_key_value_pairs.attribute_key LIKE %?%"+\
-                                              "metadata_key_value_pairs.attribute_value LIKE %?%",
-                                               key,value]
-                                                                )
-           mkvps.each do |m|
-            id=m.file_id
-            file=Earth::File.find(id)   
-             @rsp_files.push(file)
-           end
+        mkvps=Earth::MetadataKeyValuePair.find(:all,:conditions=>
+                                                  ["attribute_key LIKE ? and attribute_value LIKE ?",key,value])
+        mkvps.each do |m|
+          id=m.file_id
+          file=Earth::File.find(id)   
+          @rsp_files.push(file)
+        end
+      end
+       
                                                                 
        return @rsp_files
         
