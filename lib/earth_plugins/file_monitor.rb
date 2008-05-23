@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-require "rsp_metadata.rb"
+require File.join('lib', 'earth_plugins', 'rsp_metadata.rb')
 
 class FileMonitor < EarthPlugin
   cattr_accessor :log_all_sql
@@ -257,20 +257,19 @@ private
     end
   end
   
+  public
   #allows saving of metadata information into database table
   def save_file_metadata(file_id, metadata)
-	@rspmeta = RspMetadata.new
-    RSP_KEYS = @rspmeta.rsp_keys
-	#@RSP_KEYS = ["job","sequence","shot"]
-	# :metadata_key_value_pairs
-	i=0
-	while i < RSP_KEYS.length do
-		Earth::metadata_key_value_pairs.create(:file_id => file_id,  :key => RSP_KEYS[i],  :value => metadata[RSP_KEYS[i]])
-		i+=1
-	end
+    
+    # :metadata_key_value_pairs
+    i=0
+    while i < metadata.size do
+      Earth::MetadataKeyValuePair.create(:file_id => file_id,  :key => metadata.keys[i],  :value => metadata.values[i])
+      i+=1
+    end
   end
   
-  
+  private
   def update_non_recursive(directory, options)
   
 	@rspmeta = RspMetadata.new

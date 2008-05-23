@@ -59,7 +59,7 @@ class RspMetadata < EarthPlugin
       if rsp_name!="*"&& rsp_key!="*"
         
         mkvps=Earth::MetadataKeyValuePair.find(:all,:conditions=>
-                                                  ["key LIKE ? and value LIKE ?",key,value])
+                                                  ["key LIKE ? and value LIKE ?",key,"%"+value+"%"])
         mkvps.each do |m|
           id=m.file_id
           file=Earth::File.find(id)   
