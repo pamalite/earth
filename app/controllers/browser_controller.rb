@@ -25,7 +25,8 @@ class BrowserController < ApplicationController
   end
 
   def flat
-
+     
+   
 
     @show_hidden = params[:show_hidden]
 

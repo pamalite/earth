@@ -46,31 +46,37 @@ class RspMetadata < EarthPlugin
   # It means if we assume the key is "job" and the value is "A",then the method return all the files 
   # which have the key and value pairs like ("job","A").
   
-  
+ 
    
-   def search_by(key,value)
+   def RspMetadata.search_by(key,value)
+      
       result_set_files=Array.new   
       rsp_name=value
       rsp_name="*" if rsp_name.blank?
          
       rsp_key=key
       rsp_key="*" if rsp_key.blank?
-      
-      if rsp_name!="*"&& rsp_key!="*"
+
+       if rsp_name!="*"&& rsp_key!="*"
         
         mkvps=Earth::MetadataKeyValuePair.find(:all,:conditions=>
                                                   ["key LIKE ? and value LIKE ?",key,"%"+value+"%"])
-        mkvps.each do |m|
+
+          mkvps.each do |m|
           id=m.file_id
+          
+
           file=Earth::File.find(id)   
           result_set_files.push(file)
+           end
+
         end
-      end
-       
-                                                                
-       return result_set_files
-        
-   end
+         #puts "value="+value
+         #puts "key="+key
+         #puts "result_set_files.size="+result_set_files.size.to_s
+         #puts result_set_files.each{|e| puts "file_id="+e.id.to_s}
+      
+     end
    
    
   private
