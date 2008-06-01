@@ -14,7 +14,7 @@ class SearchByKVPairs < EarthPlugin
   
   
    
-   def search_by(key,value)
+   def self.search_by(key,value)
       result_set_files=Array.new   
       rsp_name=value
       rsp_name="*" if rsp_name.blank?
