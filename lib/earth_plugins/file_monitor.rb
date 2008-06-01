@@ -419,11 +419,12 @@ private
         # If the directory has been deleted
         if !subdirectory_names.include?(dir.name)
           
-          #TODO if you delete a directory, child_delete method will delete all files and directories under that folder
-          # we need it to delete all files metadata also
-          # currently if you delete a folder earthd will failed
+          #if you delete a directory, child_delete method will delete all files and directories under that folder
+          # we need to delete all files metadata first
           
           Earth::Directory.benchmark("Removing directory with name #{dir.name}", Logger::DEBUG, !log_all_sql) do
+            #deleting all files_metadata for all files under this directory and its subdirectories
+            Metadata.delete_all_files_metadata_under_dir(dir)
             directory.child_delete(dir)
           end
         end

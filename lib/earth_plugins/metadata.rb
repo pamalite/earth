@@ -47,4 +47,29 @@ class Metadata < EarthPlugin
     end
   end
   
+  # deletes all files_metadata for all files under a directory and its subdirectories
+  # ===Parameters: TODO
+  def self.delete_all_files_metadata_under_dir(dir)
+    
+    if dir.direct_children.size == 0
+      delete_list_files_metadata(dir.files)
+      return
+    end
+    
+    children = dir.direct_children
+    
+    for i in 0..children.size-1 do
+      delete_all_files_metadata_under_dir(children[i])
+    end
+  end
+  
+  
+  # the +delete_metadata+ method deletes any metadata associated with all files
+  # === Parameters: TODO 
+  def self.delete_list_files_metadata(files)
+    for i in 0..files.size do
+      self.delete_file_metadata(files[i])
+    end
+  end
+  
 end
