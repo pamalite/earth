@@ -148,7 +148,9 @@ module ApplicationHelper
       { :title => "all files",  :controller => "browser", :action => "flat" },
       { :title => "radial",    :controller => "graph",   :action => "index" }, 
       # Ken: Added usage browser tab
-      { :title => "user usages", :controller => "browser", :action => "usages" }
+      { :title => "user usages", :controller => "browser", :action => "usages" },
+      # Keane: Added category tab
+      { :title => "category",    :controller => "browser",   :action => "category" }
     ]
   end
 

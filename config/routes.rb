@@ -63,7 +63,17 @@ ActionController::Routing::Routes.draw do |map|
     :requirements => {:server => hostname_regex}
   map.connect '/browser/usages.:format/:server*path', :controller => "browser", :action => "usages",
     :requirements => {:server => hostname_regex}
-  
+    
+  #Keane: setup controller "browser", action "category"
+  map.connect '/browser/category', :controller => "browser", :action => "category"
+  map.connect '/browser/category/:server', :controller => "browser", :action => "category",
+    :requirements => {:server => hostname_regex}
+  map.connect '/browser/category/:server*path', :controller => "browser", :action => "category",
+    :requirements => {:server => hostname_regex}
+  map.connect '/browser/category.:format/:server*path', :controller => "browser", :action => "category",
+    :requirements => {:server => hostname_regex}
+    
+    
   # setup controller "graph", action "show"
   map.connect '/graph/show', :controller => "graph", :action => "show"
   map.connect '/graph/show/:server', :controller => "graph", :action => "show",
