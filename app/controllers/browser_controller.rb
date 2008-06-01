@@ -207,7 +207,8 @@ class BrowserController < ApplicationController
     end
     
 
-      @files, file_count = SearchByKVPairs.search_by(params[:filter_searchtype], params[:filter_searchname])
+      @files = SearchByKVPairs.search_by(params[:filter_searchtype], params[:filter_searchname])
+      file_count = @files.size
       @page_count = ((file_count || 0)+ @page_size - 1) / @page_size
       
 
