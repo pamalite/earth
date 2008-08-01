@@ -18,6 +18,7 @@ module Earth
   class File < ActiveRecord::Base
     belongs_to :directory
     composed_of :user, :mapping => [%w(uid uid)]
+    has_many :metadata_key_value_pairs
     
     Stat = Struct.new(:mtime, :size, :blocks, :uid, :gid)
     class Stat
