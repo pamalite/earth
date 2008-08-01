@@ -337,7 +337,7 @@ private
             new_file = directory.files.create(:name => name, :stat => stats[name])
             
             # save the new file metadata
-            Metadata.save_file_metadata(new_file.id)
+            Metadata.save_file_metadata(new_file)
 			
           end
           
