@@ -368,7 +368,7 @@ private
               
               #adding code to acquire metadata and save it - update
               logger.debug("update_non_recursive::Saving Metadata for file_id: #{file.id}")
-              Metadata.save_file_metadata(file.id)
+              Metadata.save_file_metadata(file)
               
               # If the file has changed
               if file.stat != stats[file.name]
@@ -391,7 +391,7 @@ private
               # If the file has been deleted
             else
               # delete this file metadata before deleting it
-              Metadata.delete_file_metadata(file.id)
+              Metadata.delete_file_metadata(file)
               
               Earth::Directory.benchmark("Removing file with name #{file.name}", Logger::DEBUG, !log_all_sql) do
                 directory.files.delete(file)
