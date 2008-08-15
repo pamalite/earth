@@ -7,6 +7,8 @@ foo:
   rgt: 10
   level: 1
   server_id: 1
+  uid: 1
+  modified: <%= 20.minutes.ago.to_s(:db) %>
 foo_bar:
   id: 2
   name: "bar"
@@ -16,6 +18,8 @@ foo_bar:
   rgt: 9
   level: 2
   server_id: 1
+  uid: 1
+  modified: <%= 5.weeks.ago.to_s(:db) %>
 foo_bar_twiddle:
   id: 3
   name: "twiddle"
@@ -25,6 +29,8 @@ foo_bar_twiddle:
   rgt: 8
   level: 3
   server_id: 1
+  uid: 1
+  modified: <%= 1.year.ago.to_s(:db) %>
 foo_bar_twiddle_frob:
   id: 4
   name: "frob"
@@ -34,6 +40,8 @@ foo_bar_twiddle_frob:
   rgt: 7
   level: 4
   server_id: 1
+  uid: 1
+  modified: <%= 5.weeks.ago.to_s(:db) %>
 foo_bar_twiddle_frob_baz:
   id: 5
   name: "baz"
@@ -43,6 +51,8 @@ foo_bar_twiddle_frob_baz:
   rgt: 6
   level: 5
   server_id: 1
+  uid: 1
+  modified: <%= 5.weeks.ago.to_s(:db) %>
 bar:
   id: 6
   name: "/bar"
@@ -51,6 +61,8 @@ bar:
   rgt: 2
   level: 1
   server_id: 2
+  uid: 1
+  modified: <%= 5.weeks.ago.to_s(:db) %>
 fizzle:
   id: 7
   name: "/fizzle"
@@ -59,3 +71,5 @@ fizzle:
   rgt: 2
   level: 1
   server_id: 3
+  uid: 1
+  modified: <%= 10.years.ago.to_s(:db) %>

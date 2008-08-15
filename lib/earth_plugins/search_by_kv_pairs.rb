@@ -4,8 +4,7 @@
 
 class SearchByKVPairs < EarthPlugin
 
-  # TODO: add method comments
-  # The search_by(key,value) method is writen by QING Yang
+  # The +search_by(key,value)+ method is writen by QING Yang
   
   # Both key and value are from the input of view, which are entered by users.
   # If key and value are not blank, we find out all the files which include the key and value pairs.
