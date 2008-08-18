@@ -1,7 +1,7 @@
 class ReCreateFileMetadataStrings < ActiveRecord::Migration
   def self.up
     drop_table :file_metadata_strings
-    create_table :files_metadata_strings do |t|
+    create_table :files_metadata_strings, :id => false, :force => true do |t|
       t.column :file_id, :integer
       t.column :metadata_string_id, :integer
     end
