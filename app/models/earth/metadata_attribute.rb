@@ -16,5 +16,6 @@
 
 module Earth
   class MetadataAttribute < ActiveRecord::Base
+    has_many :metadata_strings
   end
 end

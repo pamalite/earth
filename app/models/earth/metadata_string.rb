@@ -16,5 +16,7 @@
 
 module Earth
   class MetadataString < ActiveRecord::Base
+    belongs_to :metadata_attribute
+    has_and_belongs_to_many :files 
   end
 end

@@ -19,6 +19,7 @@ module Earth
     belongs_to :directory
     composed_of :user, :mapping => [%w(uid uid)]
     has_many :metadata_key_value_pairs
+    has_and_belongs_to_many :metadata_strings
     
     Stat = Struct.new(:mtime, :size, :blocks, :uid, :gid)
     class Stat
