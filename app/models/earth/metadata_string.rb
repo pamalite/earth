@@ -17,6 +17,26 @@
 module Earth
   class MetadataString < ActiveRecord::Base
     belongs_to :metadata_attribute
-    has_and_belongs_to_many :files 
+    has_and_belongs_to_many :files
+   
+    #override the create method to avoid redundancy
+    def create
+      #look for equivelant to avoid redundancy
+      old = MetadataString.find(:first, :conditions => attributes)
+      
+      if old.nil?
+        #no equivelant records
+        #creat new one
+        super
+      else
+        #there is an equivelant record
+        #do not create
+        #just the association will be created  
+        self.id = old.id
+      end
+
+    end
+
+   
   end
 end
