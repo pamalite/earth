@@ -2,7 +2,7 @@
 # The main functionality provided:
 # 1- saving a file metadata
 # 2- deleting a file(s) metadata
-# Author:: Mohammad Bamogaddam, Ming
+# Author:: Mohammad Bamogaddam
 
 class Metadata < EarthPlugin
   #TODO abstract methods: 
@@ -21,7 +21,9 @@ class Metadata < EarthPlugin
   # the plug-in should give the metadata in a hash form: {key => value, key2 => value2,,,}
   # where: the (key) should corresponds to an attribute_name in metadata_attributes table
   # examples of metadata:
-  # {}
+  # {"job" => "lor", "sequence" => "001", "shot" => "143"}
+  # {"resolution" => 300}
+  # {"file_type" => "JPG"}...etc
   def self.save_file_metadata(file)
     
     #delete any old metadata for this file
@@ -84,7 +86,13 @@ class Metadata < EarthPlugin
   
   
   private
-  #TODO comments
+  #The +metadata_with_attributes+ method brings the corresponding attribute Ids and types
+  #create a array in the form: 
+  # [{:attribute_id => ??, :attribute_type => ??, :value => ??}, {}, {},,,]
+  # === Parameters:
+  # * _metadata_ = hash contains metadata in the form {key => value, key2, => value2,,,}
+  # key = String should have an entry in the metadata_attributes
+  # value = the metadata value
   def metadata_with_attributes(metadata)
     metadata_with_att = Array.new
     for i in 0..metadata.size-1 do
