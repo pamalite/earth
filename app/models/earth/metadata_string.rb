@@ -19,7 +19,9 @@ module Earth
     belongs_to :metadata_attribute
     has_and_belongs_to_many :files
    
-    #override the create method to avoid redundancy
+    # override the create method to avoid redundancy
+    # if the new record values are already in the database, 
+    #     do not create an equivelant record
     def create
       #look for equivelant to avoid redundancy
       old = MetadataString.find(:first, :conditions => attributes)
@@ -34,9 +36,7 @@ module Earth
         #just the association will be created  
         self.id = old.id
       end
-
     end
-
-   
+  
   end
 end

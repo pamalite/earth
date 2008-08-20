@@ -6,8 +6,13 @@
 
 class Metadata < EarthPlugin
   #TODO abstract methods: 
-  # 1- file_metadata(file), 
-  # 2- create_metadata(file, attributes),
+  # 1- file_metadata(file) == extract metadata values from a given file. 
+  #    this method is plug-in specific. each plug-in will have it is own algorithm for this method
+  #    the importnat thing is the format of the returned metadata: it should be a Hash in the form: {key => value, key2 => value2,,,}
+  #    where: the (key) should corresponds to an attribute_name in metadata_attributes table  
+  # 2- create_metadata(file, attributes) == it is simple method -- file.metadata_strings.create(attributes)
+  # 3- delete_join_records(file, metadata_value_id) == it is simple method -- Earth::FilesMetadataString.delete_all({:file_id => file.id, :metadata_string_id => metadata_value_id}) 
+  # 4- metadata_values(file) --- it is as simple as --> file.metadata_strings
   
   # the +save_file_metadata+ save metadata for a given file
   # if there is already metdata for this file it will be deleted and the new ones will be saved
@@ -45,16 +50,33 @@ class Metadata < EarthPlugin
     for i in 0..metadata_with_att.size-1 do 
       #TODO (OLD, delete) file.metadata_key_value_pairs.create(:key => metadata.keys[i],  :value => metadata.values[i])
       
-      #TODO use the abstract method create_metadata()
+      #TODO use the abstract method create_metadata() 
+      # OR TRY 
+      #  values = metadata_values
+      #  metadata_values.create()
+      # if this worked, no need for create_metadata() method
       file.metadata_strings.create(:value => metadata_with_att[i][:value], :metadata_attribute_id => metadata_with_att[i][:attribute_id])
     end
   end
   
   # the +delete_metadata+ method deletes any metadata associated with the passed file
   # === Parameters:
-  # * _file_ = a file object which its metadata will be deleted 
+  # * _file_ = a file object which its metadata will be deleted
   def self.delete_file_metadata(file)
-    file.metadata_key_value_pairs.destroy_all unless file.nil? or file.metadata_key_value_pairs.empty?
+    for meta in file.metadata_strings
+      meta_id = meta.id
+      # delete the association records
+      # TODO use the abstract method instead
+      delete_join_records(file, meta_id)
+      
+      # if this metadata is not linked to any other files, delete it
+      # otherwise, leave it
+      result = Earth::FilesMetadataString.find_by_metadata_string_id(meta_id)
+      if result.nil?
+        meta.destroy
+      end
+      
+    end
   end
   
   # deletes all files_metadata for all files under a directory and its subdirectories
@@ -102,6 +124,11 @@ class Metadata < EarthPlugin
       end
     end
     metadata_with_att
+  end
+  
+  # TODO method comments
+  def self.delete_join_records(file, metadata_value_id)
+    Earth::FilesMetadataString.delete_all({:file_id => file.id, :metadata_string_id => metadata_value_id})
   end
   
 end
