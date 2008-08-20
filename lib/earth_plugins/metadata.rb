@@ -39,7 +39,7 @@ class Metadata < EarthPlugin
     #bring the corresponding attribute Ids and types
     #create a array in the form: 
     # [{:attribute_id => ??, :attribute_type => ??, :value => ??}, {}, {},,,]
-    metadata_with_att = metadata_with_attributes(metadata)
+    metadata_with_att = self.metadata_with_attributes(metadata)                        
     
     # save file metdata
     for i in 0..metadata_with_att.size-1 do 
@@ -93,7 +93,7 @@ class Metadata < EarthPlugin
   # * _metadata_ = hash contains metadata in the form {key => value, key2, => value2,,,}
   # key = String should have an entry in the metadata_attributes
   # value = the metadata value
-  def metadata_with_attributes(metadata)
+  def self.metadata_with_attributes(metadata)
     metadata_with_att = Array.new
     for i in 0..metadata.size-1 do
       attribute = Earth::MetadataAttribute.find_by_name(metadata.keys[i])
