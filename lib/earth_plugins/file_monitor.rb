@@ -13,13 +13,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-require File.join('lib', 'earth_plugins', 'rsp_metadata.rb')
 require File.join('lib', 'earth_plugins', 'metadata.rb')
+require File.join('lib', 'earth_plugins', 'rsp_metadata.rb')
 
 class FileMonitor < EarthPlugin
   cattr_accessor :log_all_sql
   cattr_accessor :console_writer
   cattr_accessor :status_info
+  
+  
+  def initialize(metadata_plugin = nil)
+    if metadata_plugin.nil?
+      @metadata_plugin = RspMetadata.new
+    else
+      @metadata_plugin = metadata_plugin
+    end
+  end
 
   self.status_info = "Starting up"
 
@@ -337,7 +346,7 @@ private
             new_file = directory.files.create(:name => name, :stat => stats[name])
             
             # save the new file metadata
-            Metadata.save_file_metadata(new_file)
+            @metadata_plugin.save_file_metadata(new_file)
 			
           end
           
@@ -368,7 +377,7 @@ private
               
               #adding code to acquire metadata and save it - update
               logger.debug("update_non_recursive::Saving Metadata for file_id: #{file.id}")
-              Metadata.save_file_metadata(file)
+              @metadata_plugin.save_file_metadata(file)
               
               # If the file has changed
               if file.stat != stats[file.name]
@@ -391,7 +400,7 @@ private
               # If the file has been deleted
             else
               # delete this file metadata before deleting it
-              Metadata.delete_file_metadata(file)
+              @metadata_plugin.delete_file_metadata(file)
               
               Earth::Directory.benchmark("Removing file with name #{file.name}", Logger::DEBUG, !log_all_sql) do
                 directory.files.delete(file)
@@ -424,7 +433,7 @@ private
           
           Earth::Directory.benchmark("Removing directory with name #{dir.name}", Logger::DEBUG, !log_all_sql) do
             #deleting all files_metadata for all files under this directory and its subdirectories
-            Metadata.delete_all_files_metadata_under_dir(dir)
+            @metadata_plugin.delete_all_files_metadata_under_dir(dir)
             directory.child_delete(dir)
           end
         end

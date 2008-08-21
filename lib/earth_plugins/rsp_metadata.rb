@@ -3,7 +3,7 @@
 # Author:: Mohammad Bamogaddam
  
  
-class RspMetadata < EarthPlugin
+class RspMetadata < Metadata
   
   # constant variable used to save rsp naming convention
   RSP_KEYS = ["job","sequence","shot"]
@@ -33,6 +33,26 @@ class RspMetadata < EarthPlugin
     # parse the path, look for keys and save metadata
     metadata = parse_path(path)
     return metadata
+  end
+  
+  # look at the comment for this method in Metadata class
+  def create_metadata(file , attributes)
+    file.metadata_strings.create(attributes)
+  end
+  
+  # look at the comment for this method in Metadata class
+  def delete_join_records(file, metadata_value_id)
+    Earth::FilesMetadataString.delete_all({:file_id => file.id, :metadata_string_id => metadata_value_id})
+  end
+  
+  # look at the comment for this method in Metadata class
+  def metadata_values(file)
+    file.metadata_strings
+  end
+  
+  # look at the comment for this method in Metadata class
+  def find_by_metadata_value_id(id)
+    Earth::FilesMetadataString.find_by_metadata_string_id(id)
   end
    
   

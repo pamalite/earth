@@ -22,6 +22,7 @@ require 'erb'
 class ApplicationController < ActionController::Base
 	#keane : added for ticket 42
 require File.join(File.dirname(__FILE__), '..', '..',  'lib', 'earth_plugin_interface', 'earth_plugin.rb')
+require File.join(File.dirname(__FILE__), '..', '..', 'lib','earth_plugins', 'metadata.rb')
 require File.join(File.dirname(__FILE__), '..', '..', 'lib','earth_plugins', 'rsp_metadata.rb')
 require File.join(File.dirname(__FILE__), '..', '..', 'lib','earth_plugins', 'search_by_kv_pairs.rb')
 
