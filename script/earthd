@@ -488,6 +488,24 @@ class Earthd
 
       while true
 
+        # create an extension point here
+        # to extend the earthd functionality on each iteration
+        # if no plugins are installed, earthd will not do anything
+        
+        #bring all the plug_ins for this extension point
+	logger.info("Inside main loop")
+	ext_id = 1
+        #debugger
+        plugins = Earth::PluginDescriptor.find(:all, :conditions => {:extension_point_id => ext_id})
+        for p in plugins do
+          #instantiate the plugin class
+          plugin = PluginManager.get_plugin_class_from_name(p.name)
+          #run a specific plugin method to do some functionality
+          #PluginManager.plugin_method(plugin.method) unless p.method.nil?
+        end
+        
+
+=begin
         begin
           if LOAD_FILE_MONITOR_AS_PLUGIN
             @file_monitor = @plugin_manager.load_plugin("EarthFileMonitor", loaded_plugin_versions["EarthFileMonitor"]) || @file_monitor
@@ -520,6 +538,7 @@ class Earthd
             raise
           end
         end
+=end
       end
     rescue => err
       logger.fatal("Exiting: Daemon died")      

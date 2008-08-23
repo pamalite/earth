@@ -23,6 +23,10 @@ class FileMonitor < EarthPlugin
 
   @logger = nil
 
+  def initialize
+    iteration({}, false, nil)
+  end
+
   def logger=(logger)
     @logger = logger
   end
