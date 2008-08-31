@@ -63,6 +63,7 @@ class EarthPlugin
     
   end
   
+  #TODO method comments
   def get_param(param)
     return $plugin_session[param] unless $plugin_session.nil? or $plugin_session[param].nil?
     nil

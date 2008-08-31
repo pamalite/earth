@@ -23,6 +23,7 @@ class FileMonitor < EarthPlugin
 
   @logger = nil
 
+  #TODO method comments
   def initialize
     #debugger
     #bring the parameters from the plug-in session
