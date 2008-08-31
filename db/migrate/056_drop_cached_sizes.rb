@@ -28,6 +28,5 @@ class DropCachedSizes < ActiveRecord::Migration
       t.foreign_key :directory_id, :directories, :id, { :on_delete => :cascade, :name => "cached_sizes_directories_id_fk"  }
     end
     execute "UPDATE cached_sizes SET bytes=(SELECT bytes FROM directories where id=cached_sizes.directory_id), blocks=(SELECT blocks FROM directories where id=cached_sizes.directory_id), count=(SELECT count FROM directories where id=cached_sizes.directory_id)"
-    
   end
 end

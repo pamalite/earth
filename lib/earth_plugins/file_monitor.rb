@@ -34,6 +34,14 @@ class FileMonitor < EarthPlugin
 
   @logger = nil
 
+  #TODO method comments
+  def initialize
+    #debugger
+    #bring the parameters from the plug-in session
+    @logger = get_param(:logger)
+    iteration(get_param(:cache), get_param(:only_initial_update), get_param(:force_update_time))
+  end
+
   def logger=(logger)
     @logger = logger
   end

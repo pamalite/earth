@@ -31,5 +31,7 @@ require File.join(File.dirname(__FILE__), '..', '..', 'lib','earth_plugins', 'se
   def self.webapp_config
     @@webapp_config
   end
+  
+  $plugin_session = {}
 
 end

@@ -26,7 +26,9 @@ require 'erb'
 require 'yaml'
 require File.join(File.dirname(__FILE__), '..', 'lib', 'earth_plugin_interface', 'earth_plugin.rb')
 require File.join(File.dirname(__FILE__), '..', 'lib', 'earth_plugin_interface', 'plugin_manager.rb')
+require File.join(File.dirname(__FILE__), '..', 'lib', 'earth_plugin_interface', 'extensions.rb')
 require File.join(File.dirname(__FILE__), '..', 'lib', 'earthd_helper.rb')
+include Extensions
 
 BANNER = <<END_OF_STRING
 
@@ -482,12 +484,20 @@ class Earthd
 
       last_known_good_file_monitor = nil
 
-      if not LOAD_FILE_MONITOR_AS_PLUGIN
-        @file_monitor = FileMonitor.new
-      end
+#      if not LOAD_FILE_MONITOR_AS_PLUGIN
+#        @file_monitor = FileMonitor.new
+#      end
 
       while true
+        
+        logger.info("Inside main loop")
+        
+        # create an extension point here
+        # to extend the earthd functionality on each iteration
+        # if no plugins are installed, earthd will do nothing
+        extension_point("main_loop",self.class.to_s,:logger => logger, :cache => cache, :only_initial_update => false, :force_update_time =>@config["override_update_interval"])       
 
+=begin
         begin
           if LOAD_FILE_MONITOR_AS_PLUGIN
             @file_monitor = @plugin_manager.load_plugin("EarthFileMonitor", loaded_plugin_versions["EarthFileMonitor"]) || @file_monitor
@@ -520,6 +530,7 @@ class Earthd
             raise
           end
         end
+=end
       end
     rescue => err
       logger.fatal("Exiting: Daemon died")      

@@ -133,4 +133,14 @@ class PluginManager
     new_plugin_class.new
   end
   
+  #TODO method comments
+  def self.get_plugin_class_from_name(name)
+    eval name + '.new'
+  end
+  
+  #TODO method comments
+  def self.plugin_method(method)
+    eval 'plugin' + '.' + method
+  end
+  
 end

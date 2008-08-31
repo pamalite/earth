@@ -17,5 +17,6 @@
 module Earth
   class PluginDescriptor < ActiveRecord::Base
     has_many :metadata_attributes, :class_name => "Earth::MetadataAttribute", :dependent => :delete_cascade, :order => :name
+    belongs_to :extension_points
   end
 end

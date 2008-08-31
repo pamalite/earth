@@ -22,16 +22,16 @@ end
 
 class EarthPlugin
   @@on_inheritance_block = nil
-
+  
   def self.on_inheritance(&block)
     @@on_inheritance_block = block
   end
-
+  
   def self.inherited(child) #:nodoc:
     @@on_inheritance_block.call(child) if @@on_inheritance_block
     super
   end
-
+  
   def self.plugin_name
     raise PluginMethodNotImplementedError
   end
@@ -39,9 +39,9 @@ class EarthPlugin
   def self.plugin_version
     raise PluginMethodNotImplementedError
   end
-
+  
   def self.validate_plugin_class(plugin_class)
-
+    
     begin
       plugin_name = plugin_class.plugin_name
     rescue PluginMethodNotImplementedError
@@ -49,7 +49,7 @@ class EarthPlugin
     rescue => err
       raise InvalidEarthPluginError, err
     end
-
+    
     begin
       plugin_version = plugin_class.plugin_version
       if plugin_version.class != Fixnum
@@ -60,7 +60,13 @@ class EarthPlugin
     rescue => err
       raise InvalidEarthPluginError, err
     end
-
+    
   end
+  
+  #TODO method comments
+  def get_param(param)
+    return $plugin_session[param] unless $plugin_session.nil? or $plugin_session[param].nil?
+    nil
+  end
+  
 end
-
