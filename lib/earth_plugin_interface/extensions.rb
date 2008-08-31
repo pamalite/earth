@@ -2,7 +2,7 @@
 module Extensions
   
   #TODO method comments
-  def extension_point(id, *args)
+  def extension_point(extinsion_point_name,host_plugin, *args)
     #args are the paremetrs should be passed to the plug-in
     #so, put them in the plug-in session
     args.each do |arg|
@@ -11,9 +11,9 @@ module Extensions
 
 
     #bring all the plug_ins for this extension point
-    ext_id = id
     #debugger
-    plugins = Earth::PluginDescriptor.find(:all, :conditions => {:extension_point_id => ext_id})
+    extension_point = Earth::ExtensionPoint.find(:first, :conditions => {:host_plugin => host_plugin, :name => extinsion_point_name})
+    plugins = extension_point.plugin_descriptors
     for p in plugins do
       #instantiate the plugin class
       plugin = PluginManager.get_plugin_class_from_name(p.name)

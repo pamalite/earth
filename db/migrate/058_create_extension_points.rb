@@ -13,6 +13,9 @@ class CreateExtensionPoints < ActiveRecord::Migration
     add_column :plugin_descriptors, :extension_point_id, :integer
     change_column :plugin_descriptors, :code, :binary, :null => true
     change_column :plugin_descriptors, :sha1_signature, :binary, :null => true
+    
+    #TODO add the first extension point which is located at Earthd
+    
   end
 
   def self.down
