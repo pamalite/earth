@@ -26,10 +26,6 @@ module Extensions
 
       plugin = plugin_manager.load_plugin(p.name, p.version)
 
-
-
-      #we could run a specific plugin method to do some functionality
-      #eval 'plugin' + '.' + p.method unless p.method.nil?
     end
     
     #clear the plugin_session

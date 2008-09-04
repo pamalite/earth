@@ -53,84 +53,67 @@ class Metadata < EarthPlugin
   # {"job" => "lor", "sequence" => "001", "shot" => "143"}
   # {"resolution" => 300}
   # {"file_type" => "JPG"}...etc
-  def save_file_metadata(file = nil)
-    # read the (file) parameter from the plugin session
-    f = get_param(:file)
-    file = f unless f.nil?
+  def save_file_metadata(file)
+    #delete any old metadata for this file
+    delete_file_metadata(file)
     
-    unless file.nil?
-      #delete any old metadata for this file
-      delete_file_metadata(file)
-      
-      
-      # extract metadata for the given file using another plug-in
-      # we create the rsp_metadata (or any other metadata plug-ins) as subclass of this one
-      #  and the method (file_metadata) defined here as abstract method(i.e. it should be implemented in any subclasses) 
-      metadata = file_metadata(file)
-      
-      #bring the corresponding attribute Ids and types
-      #create a array in the form: 
-      # [{:attribute_id => ??, :attribute_type => ??, :value => ??}, {}, {},,,]
-      metadata_with_att = metadata_with_attributes(metadata)                        
-      
-      # save file metdata
-      for i in 0..metadata_with_att.size-1 do 
-        #use the abstract method create_metadata() 
-        # OR TODO TRY 
-        #  values = metadata_values
-        #  metadata_values.create()
-        # if this worked, no need for create_metadata() method
-        create_metadata(file, {:value => metadata_with_att[i][:value], :metadata_attribute_id => metadata_with_att[i][:attribute_id]})
-      end
+    
+    # extract metadata for the given file using another plug-in
+    # we create the rsp_metadata (or any other metadata plug-ins) as subclass of this one
+    #  and the method (file_metadata) defined here as abstract method(i.e. it should be implemented in any subclasses) 
+    metadata = file_metadata(file)
+    
+    #bring the corresponding attribute Ids and types
+    #create a array in the form: 
+    # [{:attribute_id => ??, :attribute_type => ??, :value => ??}, {}, {},,,]
+    metadata_with_att = metadata_with_attributes(metadata)                        
+    
+    # save file metdata
+    for i in 0..metadata_with_att.size-1 do 
+      #use the abstract method create_metadata() 
+      # OR TODO TRY 
+      #  values = metadata_values
+      #  metadata_values.create()
+      # if this worked, no need for create_metadata() method
+      create_metadata(file, {:value => metadata_with_att[i][:value], :metadata_attribute_id => metadata_with_att[i][:attribute_id]})
     end
   end
   
   # the +delete_metadata+ method deletes any metadata associated with the passed file
   # === Parameters:
   # * _file_ = a file object which its metadata will be deleted
-  def delete_file_metadata(file = nil)
-    # read the (file) parameter from the plugin session
-    f = get_param(:file)
-    file = f unless f.nil?
+  def delete_file_metadata(file)
     
-    unless file.nil?
-      for meta in metadata_values(file)
-        meta_id = meta.id
-        # delete the association records
-        # TODO use the abstract method instead
-        delete_join_records(file, meta_id)
-        
-        # if this metadata is not linked to any other files, delete it
-        # otherwise, leave it
-        #TODO OLD result = Earth::FilesMetadataString.find_by_metadata_string_id(meta_id)
-        result = find_by_metadata_value_id(meta_id)
-        if result.nil?
-          meta.destroy
-        end
-        
+    for meta in metadata_values(file)
+      meta_id = meta.id
+      # delete the association records
+      # TODO use the abstract method instead
+      delete_join_records(file, meta_id)
+      
+      # if this metadata is not linked to any other files, delete it
+      # otherwise, leave it
+      #TODO OLD result = Earth::FilesMetadataString.find_by_metadata_string_id(meta_id)
+      result = find_by_metadata_value_id(meta_id)
+      if result.nil?
+        meta.destroy
       end
+      
     end
   end
   
   # deletes all files_metadata for all files under a directory and its subdirectories
   # ===Parameters:
   # * _dir_ = a directory object which metadata for all files under it will be deleted 
-  def delete_all_files_metadata_under_dir(dir = nil)
-    # read the (dir) parameter from the plugin session
-    d = get_param(:dir)
-    dir = d unless d.nil?
+  def delete_all_files_metadata_under_dir(dir)
+    if dir.direct_children.size == 0
+      delete_list_files_metadata(dir.files)
+      return
+    end
     
-    unless dir.nil?
-      if dir.direct_children.size == 0
-        delete_list_files_metadata(dir.files)
-        return
-      end
-      
-      children = dir.direct_children
-      
-      for i in 0..children.size-1 do
-        delete_all_files_metadata_under_dir(children[i])
-      end
+    children = dir.direct_children
+    
+    for i in 0..children.size-1 do
+      delete_all_files_metadata_under_dir(children[i])
     end
   end
   
