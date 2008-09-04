@@ -22,7 +22,7 @@ class CreateExtensionPoints < ActiveRecord::Migration
     #add file_monitor as a plugin for Earthd
     ext.reload
     #TODO here we should upload the code to the database
-    ext.plugin_descriptors.create :name => "FileMonitor", :version => 1
+    #ext.plugin_descriptors.create :name => "FileMonitor", :version => 1
 
     
   end
