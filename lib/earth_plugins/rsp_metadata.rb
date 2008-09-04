@@ -5,6 +5,14 @@
  
 class RspMetadata < Metadata
   
+  def self.plugin_name
+    "EarthRspMetadata"
+  end
+
+  def self.plugin_version
+    1
+  end
+  
   # constant variable used to save rsp naming convention
   RSP_KEYS = ["job","sequence","shot"]
   

@@ -5,6 +5,15 @@
 # Author:: Mohammad Bamogaddam
 
 class Metadata < EarthPlugin
+  
+  def self.plugin_name
+    "EarthMetadata"
+  end
+
+  def self.plugin_version
+    1
+  end
+  
   #TODO abstract methods: 
   # 1- file_metadata(file) == extract metadata values from a given file. 
   #    this method is plug-in specific. each plug-in will have it is own algorithm for this method
