@@ -118,9 +118,10 @@ class PluginManager
     Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code => code, :sha1_signature => signature)
   end
 
-  def load_plugin(name, last_loaded_version)
+  def load_plugin(name, last_loaded_version = nil)
+    #debugger
     if last_loaded_version
-      newPlugin = Earth::PluginDescriptor::find(:first, :conditions => [ "name = ? and version > ?", name, last_loaded_version ])
+      newPlugin = Earth::PluginDescriptor::find(:first, :conditions => [ "name = ? and version >= ?", name, last_loaded_version ])
     else
       newPlugin = Earth::PluginDescriptor::find(:first, :conditions => [ "name = ?", name ])
     end

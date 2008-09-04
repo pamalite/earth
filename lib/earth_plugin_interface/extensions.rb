@@ -13,15 +13,23 @@ module Extensions
       $plugin_session = arg
     end
 
+    plugin_manager = PluginManager.new
+    #debugger
 
     #bring all the plug_ins for this extension point using: host_plugin name and the extension_point name
     extension_point = Earth::ExtensionPoint.find(:first, :conditions => {:host_plugin => host_plugin, :name => extension_point_name})
     plugins = extension_point.plugin_descriptors unless extension_point.nil?
     for p in plugins do
       # instantiate the plugin class
-      plugin = get_class_from_name(p.name)
+      #TODO DELETE ME
+      #plugin = get_class_from_name(p.name)
+
+      plugin = plugin_manager.load_plugin(p.name, p.version)
+
+
+
       #we could run a specific plugin method to do some functionality
-      eval 'plugin' + '.' + p.method unless p.method.nil?
+      #eval 'plugin' + '.' + p.method unless p.method.nil?
     end
     
     #clear the plugin_session
