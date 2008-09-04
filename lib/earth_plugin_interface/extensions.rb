@@ -14,10 +14,13 @@ module Extensions
     end
 
     plugin_manager = PluginManager.new
-    #debugger
-
+    
+    #temporary method to get the class name
+    host_plugin = extract_plugin_name(host_plugin)
+    
     #bring all the plug_ins for this extension point using: host_plugin name and the extension_point name
     extension_point = Earth::ExtensionPoint.find(:first, :conditions => {:host_plugin => host_plugin, :name => extension_point_name})
+    #debugger
     plugins = extension_point.plugin_descriptors unless extension_point.nil?
     for p in plugins do
       # instantiate the plugin class
@@ -25,7 +28,9 @@ module Extensions
       #plugin = get_class_from_name(p.name)
 
       plugin = plugin_manager.load_plugin(p.name, p.version)
-
+      
+      #execute a specific method
+      eval 'plugin' + '.' + p.method unless p.method.nil?
     end
     
     #clear the plugin_session
@@ -41,6 +46,13 @@ module Extensions
   #TODO method comments
   def get_class_from_name(name)
     eval name + '.new'
+  end
+  
+  private
+  
+  def extract_plugin_name(name)
+    tokens = name.split('::')
+    tokens.last unless tokens.nil?
   end
   
 end
