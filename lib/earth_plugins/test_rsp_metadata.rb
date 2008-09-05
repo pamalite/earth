@@ -15,17 +15,11 @@ class TestRspMetadata < EarthPlugin
     RSP_KEYS
   end
   
-  #TODO abstract methods: 
-  # 1- file_metadata(file) == extract metadata values from a given file. 
+
+  # file_metadata(file) == extract metadata values from a given file. 
   #    this method is plug-in specific. each plug-in will have it is own algorithm for this method
   #    the importnat thing is the format of the returned metadata: it should be a Hash in the form: {key => value, key2 => value2,,,}
   #    where: the (key) should corresponds to an attribute_name in metadata_attributes table  
-  # 2- create_metadata(file, attributes) == it is simple method -- file.metadata_strings.create(attributes)
-  # 3- delete_join_records(file, metadata_value_id) == it is simple method -- Earth::FilesMetadataString.delete_all({:file_id => file.id, :metadata_string_id => metadata_value_id}) 
-  # 4- metadata_values(file) --- it is as simple as --> file.metadata_strings
-  # 5- find_by_metadata_value_id(id) -- searches the join table looking for records associated with some metadata
-  #      -- it should be like -- Earth::FilesMetadataString.find_by_metadata_string_id()
-  
   def file_metadata(file)
     # Find the parent directory for the given file
     # TODO: catch any exception (record not found, etc)
@@ -41,16 +35,15 @@ class TestRspMetadata < EarthPlugin
     file.metadata_strings.create(attributes)
   end
   
-  # look at the comment for this method in Metadata class
   def delete_join_records(file, metadata_value_id)
     Earth::FilesMetadataString.delete_all({:file_id => file.id, :metadata_string_id => metadata_value_id})
   end
   
-  # look at the comment for this method in Metadata class
   def metadata_values(file)
     file.metadata_strings
   end
   
+  # find_by_metadata_value_id(id) -- searches the join table looking for records associated with some metadata
   def find_by_metadata_value_id(id)
     Earth::FilesMetadataString.find_by_metadata_string_id(id)
   end
