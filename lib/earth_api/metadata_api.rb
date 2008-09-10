@@ -106,7 +106,7 @@ module EarthApi
     # ===Parameters:
     # * _dir_ = a directory object which metadata for all files under it will be deleted
     # * _attribute_names_ = TODO 
-    def delete_all_files_metadata_under_dir(dir, attribute_names)
+    def self.delete_all_files_metadata_under_dir(dir, attribute_names)
       if dir.direct_children.size == 0
         delete_list_files_metadata(dir.files, attribute_names)
         return
@@ -123,7 +123,7 @@ module EarthApi
     # === Parameters:
     # * _files_ = list of files. Their metadata will be deleted, one by one using the +delete_file_metadata+ method
     # * _attribute_names_ = TODO  
-    def delete_list_files_metadata(files, attribute_names)
+    def self.delete_list_files_metadata(files, attribute_names)
       for i in 0..files.size-1 do
         delete_file_metadata(files[i], attribute_names)
       end
