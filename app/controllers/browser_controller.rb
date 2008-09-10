@@ -223,7 +223,9 @@ class BrowserController < ApplicationController
     @directory = @server.directories.find_by_path(params[:path] * '/') if @server && params[:path]
 
     #Keane: added for ticket 42
-    @vector = RspMetadata.rsp_keys
+    #TODO to be changed later. it must flexible somehow!!!
+    rsp_keys = ["job","sequence","shot"]
+    @vector = rsp_keys
 
   end
 end
