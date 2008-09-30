@@ -17,7 +17,7 @@
 require 'openssl'
 
 require File.join(File.dirname(__FILE__), 'earth_plugin')
-
+#require File.join(File.dirname(__FILE__), '..', '..', 'app', 'models','earth','extension_point')
 class PluginManagerError < RuntimeError
   def initialize(message)
     @message = message
@@ -92,7 +92,19 @@ class PluginManager
     new_plugin_class
   end
 
-  def install_from_file(plugin_filename)
+  def uninstall(plugin_name)
+       begin
+     ENV["RAILS_ENV"] = "development"
+     require File.join(File.dirname(__FILE__), '..', '..', 'config', 'environment')
+        uninstall_plugin = Earth::PluginDescriptor.find(:all)
+      rescue Errno::ENOENT
+       raise PluginManagerError, "No such plugin installed  in  database!"
+       end
+        Earth::PluginDescriptor::delete(uninstall_plugin)      
+  end
+    
+
+  def install_from_file(plugin_filename,ext_point_name,host_plugin)
     code = File.read(plugin_filename)
     
     signature_filename = plugin_filename + ".sha1"
@@ -122,10 +134,15 @@ class PluginManager
     #      without loosing integrity
     b64_code = Base64.b64encode(code)
     b64_signature = Base64.b64encode(signature)
+
+     #Ida:Find extension point id ,in terms of the extension_point_name and host_name.
+    extension_point=Earth::ExtensionPoint.find(:first, :conditions => { :name => ext_point_name,:host_plugin=>host_plugin })
+    extension_point_id=extension_point.id
+     
     
     Earth::PluginDescriptor::delete(existing_plugin) if existing_plugin
     #Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code => code, :sha1_signature => signature)
-    Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code => b64_code, :sha1_signature => b64_signature)
+    Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code =>    b64_code, :sha1_signature => b64_signature,:extension_point_id =>extension_point_id)
   end
 
   def load_plugin(name, last_loaded_version)
