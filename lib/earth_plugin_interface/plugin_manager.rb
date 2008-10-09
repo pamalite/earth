@@ -93,14 +93,23 @@ class PluginManager
   end
 
   def uninstall(plugin_name)
-       begin
-     ENV["RAILS_ENV"] = "development"
-     require File.join(File.dirname(__FILE__), '..', '..', 'config', 'environment')
-        uninstall_plugin = Earth::PluginDescriptor.find(:all)
-      rescue Errno::ENOENT
+      uninstall_plugin=nil
+    begin
+      ENV["RAILS_ENV"] = "development"
+      require File.join(File.dirname(__FILE__), '..', '..', 'config', 'environment')
+
+      uninstall_plugin = Earth::PluginDescriptor.find(:first, :conditions =>{ :name => plugin_name })   
+      #uninstall_extention_point=Earth::ExtensionPoints.find(:first, :conditions =>{ :id =>uninstall_plugin.extension_point_id }) 
+
+    rescue Errno::ENOENT
        raise PluginManagerError, "No such plugin installed  in  database!"
-       end
-        Earth::PluginDescriptor::delete(uninstall_plugin)      
+       
+       # Ken: Stop the script from continuing to remove the plugin.
+       return false
+    end
+    destroy_related_extension_point(plugin_name)
+    #TODO un_install all related plugins
+    Earth::PluginDescriptor::delete(uninstall_plugin)
   end
     
 
@@ -169,6 +178,15 @@ class PluginManager
     #logger.info("New plugin \"#{name}\" available (version #{validated_plugin_class.plugin_version})")
     
     new_plugin_class.new
+  end
+  
+  private
+  def destroy_related_extension_point(plugin_name)
+    plugin_name = plugin_name.sub('Earth','')
+    related_extension_points = Earth::ExtensionPoint.find(:all, :conditions => {:host_plugin => plugin_name})
+    for ext in related_extension_points do
+      ext.destroy
+    end
   end
   
 end
