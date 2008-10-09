@@ -143,6 +143,11 @@ class PluginManager
     Earth::PluginDescriptor::delete(existing_plugin) if existing_plugin
     #Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code => code, :sha1_signature => signature)
     Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code =>    b64_code, :sha1_signature => b64_signature,:extension_point_id =>extension_point_id)
+    
+    # Run plugin migration
+    if new_plugin_class.respond_to? 'migration_up'
+      new_plugin_class.migration_up
+    end
   end
 
   def load_plugin(name, last_loaded_version)

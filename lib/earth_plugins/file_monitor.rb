@@ -45,6 +45,19 @@ class FileMonitor < EarthPlugin
   def self.plugin_version
     131
   end
+  
+  def self.migration_up
+    Earth::ExtensionPoint.create :name => "add_file", :host_plugin => "FileMonitor", :description => "when a file is added"
+    Earth::ExtensionPoint.create :name => "delete_file", :host_plugin => "FileMonitor", :description => "before a file is deleted"
+    Earth::ExtensionPoint.create :name => "delete_dir", :host_plugin => "FileMonitor", :description => "before a directory is deleted"
+  end
+  
+  def self.migration_down
+    related_extension_points = Earth::ExtensionPoint.find(:all, :conditions => {:host_plugin => "FileMonitor"})
+    for ext in related_extension_points do
+      ext.destroy
+    end
+  end
 
   class ETAPrinter
     def initialize(file_monitor, description, number_of_items)
