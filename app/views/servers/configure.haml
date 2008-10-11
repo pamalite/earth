@@ -24,7 +24,6 @@
 %p
   %b Status
   = daemon_status(@server)
-  = daemon_info(@server)
 
 
 - remote_form_for(:server, :url => url_for(:action => :startdaemon, :params => {:id => @server.id }), :html => { :multipart => false}) do |f|
@@ -55,11 +54,14 @@
     %p= submit_tag "Clear daemon data ", :id => "clear_daemon_button",   :onclick => "refreshDelay()"
 
 
-%p{:id => 'daemon_status_message'}
+= periodically_call_remote(:condition => "#{daemon_alive(@server)} != false", :frequency => 1, :url => url_for(:action => :statusdaemon, :id => @server.id))
 
+%div{:style => "width:1000 px", :id => "daemon_status_message"}
 
+%p
 
 = link_to 'Show', :action => :show, :params => {:server => @server.name}
 |
 = link_to 'Back', servers_path
+
 

@@ -199,8 +199,17 @@ private
     result = yield
     duration = Time.new - time_before
     if @@benchmark_output_enabled and description
-      logger.info "#{description} took #{duration}s"
+      logger.info "#{description} took #{duration}s"      
     end
+    
+    # Writes benchmark output to text file for status update purpose.
+    # Create (or overwrite) a file named "earthd.benchmark"    
+    if not description.nil?
+      File.open("/tmp/earthd.benchmark", "w") do |msg|
+        msg.puts("#{description} took #{duration}s")
+      end   
+    end
+    
     result
   end
 

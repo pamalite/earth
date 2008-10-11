@@ -25,12 +25,15 @@
         = controller.action_name == 'show' ? '' : controller.action_name + " " + @server.name + " - "
       Administration - Earth
     = stylesheet_link_tag 'servers'
-  %body
+    
+  %body{}
     %a{:href => url_for(:params => { :controller => :browser, :action => :show })}
       #Banner
         / Holding Space for a Banner or a Logo
+
     %p{:style => "color: green"}= flash[:notice]
     = yield
+
     #footer
       = link_to("Home", { :controller => :browser })
       |

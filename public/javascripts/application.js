@@ -4,18 +4,23 @@
 // Purpose - Required for updating UI daemon configuration page.
 // Version - unexported version
 // Date    - 12 Jun 2008
+
+var showStatusBoolean = false;
+
 function refreshNow()
 {
   // Delay before refreshing to ensure
   // the shutdown sequence done.
 	setTimeout( "refresh()", 1000 );
 }
+
 function refreshDelay()
 {
   // Delay a little longer before refreshing
   // to ensure bootup sequence is done.
-  setTimeout( "refresh()", 4000 )
+  setTimeout( "refresh()", 5000 )
 }
+
 function refresh()
 {
 	window.location.reload( true );

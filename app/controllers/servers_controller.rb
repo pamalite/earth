@@ -87,7 +87,7 @@ class ServersController < ApplicationController
     @server.fork_daemon
     render :update do |page|
       # update the status
-      page.replace_html 'daemon_status_message', "<font color=green>[ Starting daemon . . . (~4s) ]</font>"
+      page.replace_html 'daemon_status_message', "<font color=green>[ Starting daemon . . . (~5s) ]</font>"
       # disable the start button
       page << "document.getElementById('start_daemon_button').disabled = true;"
       # highlight the updated div - so client notices
@@ -103,7 +103,7 @@ class ServersController < ApplicationController
     @server.refork_daemon
     render :update do |page|
       # update the status
-      page.replace_html 'daemon_status_message', "<font color=green>[ Restarting daemon . . . (~4s) ]</font>"
+      page.replace_html 'daemon_status_message', "<font color=green>[ Restarting daemon . . . (~5s) ]</font>"
       # disable the start button
       page << "document.getElementById('restart_daemon_button').disabled = true;"
       # highlight the updated div - so client notices
@@ -119,7 +119,7 @@ class ServersController < ApplicationController
     @server.clear_daemon
     render :update do |page|
       # update the status
-      page.replace_html 'daemon_status_message', "<font color=blue>[ Clearing data on localhost . . . (~4s) ]</font>"
+      page.replace_html 'daemon_status_message', "<font color=blue>[ Clearing data on localhost . . . (~5s) ]</font>"
       # disable the clear daemon button
       page << "document.getElementById('clear_daemon_button').disabled = true;"
       # highlight the updated div - so client notices
@@ -127,11 +127,21 @@ class ServersController < ApplicationController
     end
   end
 
-  # POST /servers/1;running_status
-  def statusdaemon    
+  # POST /servers/1;statusdaemon
+  def statusdaemon  
+    @server = Earth::Server.find(params[:id])      
     render :update do |page|
-      # update the status
-      page.replace_html 'daemon_status_message', "<font color=green>[ Running . . . ]</font>"
+      page.replace_html 'daemon_status_message', "<font color=green>#{@server.get_daemon_status}</font>"
+    end
+  end
+
+  # POST /servers/1;benchmark
+  def benchmarked  
+    @server = Earth::Server.find(params[:id])      
+    render :update do |page|
+      # update benchmark message
+      page.replace_html 'daemon_benchmark', "<font color=green>[ #{@server.get_benchmark}]</font>"
+      page.visual_effect :highlight, 'daemon_benchmark'
     end
   end
 
@@ -163,7 +173,7 @@ class ServersController < ApplicationController
     render :update do |page|
       # update the status
       if @added      
-        page.replace_html 'updated_directory_message', "<font color=blue>[ Adding '#{@val}' directory. (~4s) ]</font>"
+        page.replace_html 'updated_directory_message', "<font color=blue>[ Adding '#{@val}' directory. (~5s) ]</font>"
       else
         page.replace_html 'updated_directory_message', "<font color=blue>[ Please specify directory name. ]</font>"
       end

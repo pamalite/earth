@@ -48,7 +48,7 @@ class Earthd
     @options.only_initial_update = false
     @options.force_update_time = nil
     @options.foreground = false
-    @options.verbosity = 4 # default verbosity level: WARN
+    @options.verbosity = 5 # default verbosity level: WARN
 
     opts = OptionParser.new
     opts.banner = BANNER
@@ -227,6 +227,13 @@ class Earthd
       end
     when "status"
       response = talk_to_server("status")
+      
+      # Writes response to text file for server model to fetch for status update purpose.
+      # Create (or overwrite) a file named "earthd.status"
+      File.open("/tmp/earthd.status", "w") do |msg|
+        msg.puts(response)
+      end   
+         
       print response unless response.nil?
     end
   end
@@ -241,7 +248,15 @@ class Earthd
   end
 
   def report_not_running
-    $stderr.puts "earthd not running on #{hostname}"
+    response = "earthd not running on #{hostname}"
+
+    # Writes response to text file for server model to fetch for status update purpose.
+    # Create (or overwrite) a file named "earthd.status"
+    File.open("/tmp/earthd.status", "w") do |msg|
+      msg.puts(response)
+    end   
+
+    $stderr.puts response
   end
 
   def talk_to_server(request)
@@ -317,11 +332,11 @@ class Earthd
   end
 
   def daemon_status()
-    message = "Uptime: #{format_uptime(Time.now - @start_time)}\n"
-    message += "Status: #{@booted ? 'Running' : 'Booting'}\n"
+    message = "Uptime: #{format_uptime(Time.now - @start_time)} <br>\n"
+    message += "Status: #{@booted ? 'Running' : 'Booting'} <br>\n"
     if @booted
       # message += "File Monitor Status: #{@file_monitor.status_info}\n"
-      message += "Daemon Version: #{@daemon_version.strip}\n"
+      message += "Daemon Version: #{@daemon_version.strip} <br>\n"
     end
     message
   end
@@ -502,13 +517,12 @@ class Earthd
       while true
 
         begin
-          logger.info("Loading plugins from database.")
+          logger.info("Loading plugins from database.\n")
           @loaded_plugin_names = @plugin_manager.load_all_plugin_names
           raise RuntimeError, "No plugin found in database!" unless @loaded_plugin_names
 					@loaded_plugin_names.each do |pname|
 						@currentplugin = @plugin_manager.load_plugin(pname.to_s, nil) unless @currentplugin
 						@currentplugin.logger = logger
-						logger.info("Executing Plugin #{pname.to_s} main method. ")
 						@currentplugin.main
           end
         rescue => err

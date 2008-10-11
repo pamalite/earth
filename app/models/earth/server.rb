@@ -133,9 +133,38 @@ module Earth
       fork do
         puts "Getting daemon status"
         exec("#{@daemon} status")
-      end  
-      @info
+      end
+      get_status_from("/tmp/earthd.status")
     end
+
+# =========================================================================================
+
+  def get_status_from(log_file)
+    found = Directory::File.exist? log_file 
+    if not found
+      return " [Error: (#{log_file} not found!)]"
+    end
+    f = Directory::File.open(log_file, "r") 
+    text = f.read
+    f.close
+    return text 
+  end
+
+# =========================================================================================
+
+  def get_benchmark
+    fname = "/tmp/earthd.benchmark"
+    found = Directory::File.exist? fname
+    if not found
+      return " [Error: (#{fname} not found!)]"
+    end
+    b = Directory::File.open(fname, "r") 
+    txt = b.read
+    b.close
+    return txt 
+  end
+
+# =========================================================================================
 
    def add_directory(directory_name)
      initialize_daemon
