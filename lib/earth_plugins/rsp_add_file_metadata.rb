@@ -6,6 +6,7 @@ class RspAddFileMetadata < EarthPlugin
   
   # constant variable used to save rsp naming convention
   RSP_KEYS = ["job","sequence","shot"]
+  RSP_KEYS_TYPES = ["string","string","string"]
   
   # the +rsp_keys+ method returns array of rsp keys
   def self.rsp_keys
@@ -16,8 +17,28 @@ class RspAddFileMetadata < EarthPlugin
     "EarthRspAddFileMetadata"
   end
   
+  def self.migration_up
+    plugin_object = Earth::PluginDescriptor.find_by_name(self.plugin_name)
+    # add rsp_keys in the metadata_attributes table
+    for i in 0..RSP_KEYS.size-1 do
+      Earth::MetadataAttribute.create :name => RSP_KEYS[i], :metadata_type => RSP_KEYS_TYPES[i], :plugin_descriptor_id => plugin_object.id
+    end
+    
+    # add metadata to all existed files
+    files = Earth::File.find(:all)
+    add_file_metadata = RspAddFileMetadata.new
+    for file in files do
+      metadata = add_file_metadata.file_metadata(file)
+      EarthApi::MetadataApi.save_file_metadata(file, metadata)
+    end
+  end
+  
+  def self.migration_down
+    
+  end
+  
   def self.plugin_version
-    1
+    2
   end
   
   def initialize
