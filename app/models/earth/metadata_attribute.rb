@@ -17,5 +17,14 @@
 module Earth
   class MetadataAttribute < ActiveRecord::Base
     has_many :metadata_strings
+    
+    def self.metadata_attribute_names
+      all = MetadataAttribute.find(:all)
+      names_list = []
+      for m in all do
+        names_list << m.name
+      end
+      names_list
+    end
   end
 end

@@ -222,10 +222,8 @@ class BrowserController < ApplicationController
 
     @directory = @server.directories.find_by_path(params[:path] * '/') if @server && params[:path]
 
-    #Keane: added for ticket 42
-    #TODO to be changed later. it must flexible somehow!!!
-    rsp_keys = ["job","sequence","shot"]
-    @vector = rsp_keys
+    #metadata attributes can be used for search by
+    @vector = Earth::MetadataAttribute.metadata_attribute_names
 
   end
 end
