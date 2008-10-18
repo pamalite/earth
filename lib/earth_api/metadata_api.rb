@@ -77,12 +77,10 @@ module EarthApi
       for meta in metadata_values(file, attribute_names)
         meta_id = meta.id
         # delete the association records
-        # TODO use the abstract method instead
         delete_join_records(file, meta)
         
         # if this metadata is not linked to any other files, delete it
         # otherwise, leave it
-        #TODO OLD result = Earth::FilesMetadataString.find_by_metadata_string_id(meta_id)
         result = find_files_associated(meta)
         if result.nil?
           meta.destroy
@@ -91,13 +89,24 @@ module EarthApi
       end
     end
     
-    #TODO comments
+    #This method is used to delete join records for a spcific file and specific metadata
     def self.delete_join_records(file, meta)
       attribute = meta.metadata_attribute
       if(attribute.metadata_type == "string")
         Earth::FilesMetadataString.delete_all({:file_id => file.id, :metadata_string_id => meta.id})
         #else if(attribute.metadata_type == "integer")
         # ....Earth::FilesMetadataInteger.delete_all({:file_id => file.id, :metadata_string_id => meta.id})
+        # and so on
+      end
+    end
+    
+    #This method is used to delete join records for a specific metadata    
+    def self.delete_join_records(meta)
+      attribute = meta.metadata_attribute
+      if(attribute.metadata_type == "string")
+        Earth::FilesMetadataString.delete_all({:metadata_string_id => meta.id})
+        #else if(attribute.metadata_type == "integer")
+        # ....Earth::FilesMetadataInteger.delete_all({:metadata_string_id => meta.id})
         # and so on
       end
     end
@@ -119,7 +128,7 @@ module EarthApi
       end
     end
     
-    # the +delete_metadata+ method deletes any metadata associated with all files
+    # the +delete_metadata+ method deletes any metadata associated with all files in the list
     # === Parameters:
     # * _files_ = list of files. Their metadata will be deleted, one by one using the +delete_file_metadata+ method
     # * _attribute_names_ = TODO  
@@ -129,7 +138,7 @@ module EarthApi
       end
     end
     
-    #this method return metadata values for a given file and specified attribute names
+    #this method returns metadata values for a given file and specified attribute names
     def self.metadata_values(file, attribute_names)
       result = []
       #retrieve attributes from their names
@@ -152,7 +161,31 @@ module EarthApi
       result
     end
     
-    # TODO comments
+    #this method returns metadata values for a specified metadata_attributes
+    # +attributes+ === array of Earth::MetadataAttribute objects 
+    def self.metadata_values(attributes)
+      result = []
+      #now, bring the corrosponding metadata from each attribute linke with the passed file
+      for att in attributes do
+        if(att.metadata_type == "string")
+          values = Earth::MetadataString.find(:all, :conditions => {:metadata_attribute_id => att.id})
+          #else if(att.metadata_type =="integer")
+          # ....values = Earth::FilesMetadataInteger.find(:all, :conditions => {:metadata_attribute_id => att.id})
+          # and so on
+        end
+        # save the values 
+        for v in values do
+          result << v
+        end
+        
+      end
+      result
+    end
+    
+    # This method is used to find if there is any associated files with set of metadata
+    # note, it does not return list of the associated files
+    # it is just used to check if there is any files associated
+    # TODO maybe it is better to rename it
     def self.find_files_associated(metadata)
       attribute = metadata.metadata_attribute
       if(attribute.metadata_type == "string")
@@ -173,7 +206,8 @@ module EarthApi
       "(" + new_att.join(",") + ")"
     end
     
-    # TODO comments
+    # this method is used to search for a target file id in list of files
+    # returns true if the passed +target_id+ is on the +files+ list
     def self.search_files(files, target_id)
       for f in files do
         if f.id == target_id
@@ -183,7 +217,28 @@ module EarthApi
       return false
     end
     
-    
+    # this method is used to remove all metadata information for a specific plugin
+    # this includes: metadat_attributes, metadata values, metadata join records
+    def self.remove_metadata_for_plugin(plugin)
+      # first, find all metadata attributes for the plugin
+      metadata_attributes = plugin.metadata_attributes
+      
+      # 1- find metadata_values for all the attributes
+      # 2- for each metadat_value: 
+      #     a. destroy the columns in the association table
+      #     b. destroy the metadata value row itself
+      # 3- finally, destroy the metadata attributes
+      metadata_values = self.metadata_values(metadata_attributes)
+      for meta in metadata_values do
+        self.delete_join_records(meta)
+        meta.destroy
+      end
+      
+      for attribute in metadata_attributes do
+        attribute.destroy
+      end
+      
+    end
     
     
   end

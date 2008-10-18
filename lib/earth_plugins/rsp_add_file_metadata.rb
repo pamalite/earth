@@ -34,7 +34,9 @@ class RspAddFileMetadata < EarthPlugin
   end
   
   def self.migration_down
-    
+    plugin_object = Earth::PluginDescriptor.find_by_name(self.plugin_name)
+    # remove all related metadata
+    EarthApi::MetadataApi.remove_metadata_for_plugin(plugin_object)
   end
   
   def self.plugin_version

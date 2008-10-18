@@ -26,5 +26,13 @@ module Earth
       end
       names_list
     end
+    
+    # This method to find metadata attributes by plugin_descriptor name
+    # It returns Array (unlike the usual Rails find_by which returns the first record matching the condition)
+    def self.find_by_plugin_descriptor_name(name)
+      plugin = PluginDescriptor.find_by_name(name)
+      MetadataAttribute.find(:all, :conditions => {:plugin_descriptor_id => plugin.id}) unless plugin.nil?
+    end
+    
   end
 end
