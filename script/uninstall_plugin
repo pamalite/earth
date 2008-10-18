@@ -50,6 +50,9 @@ plugin_name = ARGV[0]
 plugin_manager = PluginManager.new
 
 begin
+  
+  #dependant_plugins = plugin_manager.find_dependant_plugins(plugin_name)
+  
   plugin = plugin_manager.uninstall(plugin_name)
 rescue => err
   $stderr.puts "Unable to unstall plug-in: #$!"
