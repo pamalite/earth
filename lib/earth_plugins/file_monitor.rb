@@ -22,9 +22,15 @@ class FileMonitor < EarthPlugin
   self.status_info = "Starting up"
 
   @logger = nil
+  
 
   #TODO method comments
   def initialize
+    #TODO get it as parameter
+    @status_logger = Logger.new("/tmp/earthd_status.log")
+    
+    
+    
     #bring the parameters from the plug-in session
     @logger = get_param(:logger)
     iteration(get_param(:cache), get_param(:only_initial_update), get_param(:force_update_time))
@@ -37,13 +43,17 @@ class FileMonitor < EarthPlugin
   def logger
     @logger || RAILS_DEFAULT_LOGGER
   end
+  
+  def status_logger
+    @status_logger
+  end
 
   def self.plugin_name
     "EarthFileMonitor"
   end
 
   def self.plugin_version
-    131
+    136
   end
   
   def self.migration_up
@@ -81,6 +91,8 @@ class FileMonitor < EarthPlugin
           time_remaining = items_remaining * time_per_item
           eta_string = "#{@description} [#{@items_completed}/#{@number_of_items}] ETA: #{(Time.local(2007) + (time_remaining)).strftime('%H:%M:%S')}s"
           @file_monitor.status_info = eta_string
+          ####
+          @file_monitor.status_logger.debug(@file_monitor.status_info)
         end
       end
     end
@@ -204,6 +216,8 @@ private
 
   def benchmark(description = nil)
     self.status_info = description
+    ####
+    @status_logger.debug(self.status_info)
     time_before = Time.new
     result = yield
     duration = Time.new - time_before
@@ -274,6 +288,8 @@ private
     else
       logger.warn "No directories monitored"
       self.status_info = "Idle - no directories monitored"
+      #####
+      @status_logger.debug(self.status_info)
       sleep 2.seconds.to_i
     end
   end
