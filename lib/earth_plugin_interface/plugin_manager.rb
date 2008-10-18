@@ -17,8 +17,6 @@
 require 'openssl'
 
 require File.join(File.dirname(__FILE__), 'earth_plugin')
-require File.join(File.dirname(__FILE__), 'extensions')
-include Extensions
 #require File.join(File.dirname(__FILE__), '..', '..', 'app', 'models','earth','extension_point')
 class PluginManagerError < RuntimeError
   def initialize(message)
@@ -94,20 +92,14 @@ class PluginManager
     new_plugin_class
   end
 
-  # TODO method comments
   def uninstall(plugin_name)
-      uninstalled_plugin=nil
-      
-      #This to deal with the plugin name 
-      #  even it is written without 'Earth' at the beginning of the name
-      plugin_name = get_full_plugin_name(plugin_name)
-      
-
+      uninstall_plugin=nil
     begin
       ENV["RAILS_ENV"] = "development"
       require File.join(File.dirname(__FILE__), '..', '..', 'config', 'environment')
 
-      uninstalled_plugin = Earth::PluginDescriptor.find(:first, :conditions =>{ :name => plugin_name })   
+      uninstall_plugin = Earth::PluginDescriptor.find(:first, :conditions =>{ :name => plugin_name })   
+      #uninstall_extention_point=Earth::ExtensionPoints.find(:first, :conditions =>{ :id =>uninstall_plugin.extension_point_id }) 
 
     rescue Errno::ENOENT
        raise PluginManagerError, "No such plugin installed  in  database!"
@@ -115,13 +107,10 @@ class PluginManager
        # Ken: Stop the script from continuing to remove the plugin.
        return false
     end
-    #TODO uninstall all related plugins
-        
-    destroy_related_extension_points(plugin_name)
-    Earth::PluginDescriptor::delete(uninstalled_plugin)
+    destroy_related_extension_point(plugin_name)
+    #TODO un_install all related plugins
+    Earth::PluginDescriptor::delete(uninstall_plugin)
   end
-  
-
     
 
   def install_from_file(plugin_filename,ext_point_name,host_plugin)
@@ -192,22 +181,12 @@ class PluginManager
   end
   
   private
-  def destroy_related_extension_points(plugin_name)
-    plugin_name = get_pure_plugin_name(plugin_name)
-    #related_extension_points = Earth::ExtensionPoint.find(:all, :conditions => {:host_plugin => plugin_name})
-    related_extension_points = find_related_extension_points(plugin_name)
+  def destroy_related_extension_point(plugin_name)
+    plugin_name = plugin_name.sub('Earth','')
+    related_extension_points = Earth::ExtensionPoint.find(:all, :conditions => {:host_plugin => plugin_name})
     for ext in related_extension_points do
       ext.destroy
     end
-  end
-  
-  def get_pure_plugin_name(plugin_name)
-    plugin_name.sub('Earth','') unless plugin_name.nil?
-  end
-  
-  def get_full_plugin_name(plugin_name)
-    plugin_name = get_pure_plugin_name(plugin_name)
-    'Earth' + plugin_name unless plugin_name.nil?
   end
   
 end

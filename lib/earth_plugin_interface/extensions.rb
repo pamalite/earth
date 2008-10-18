@@ -48,10 +48,6 @@ module Extensions
     eval name + '.new'
   end
   
-  def find_related_extension_points(host_plugin_name)
-    Earth::ExtensionPoint.find(:all, :conditions => {:host_plugin => plugin_name})
-  end
-  
   private
   
   def extract_plugin_name(name)
