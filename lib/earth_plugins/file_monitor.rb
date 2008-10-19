@@ -53,7 +53,7 @@ class FileMonitor < EarthPlugin
   end
 
   def self.plugin_version
-    136
+    137
   end
   
   def self.migration_up
@@ -92,7 +92,7 @@ class FileMonitor < EarthPlugin
           eta_string = "#{@description} [#{@items_completed}/#{@number_of_items}] ETA: #{(Time.local(2007) + (time_remaining)).strftime('%H:%M:%S')}s"
           @file_monitor.status_info = eta_string
           ####
-          @file_monitor.status_logger.debug(@file_monitor.status_info)
+          @file_monitor.status_logger.info(@file_monitor.status_info)
         end
       end
     end
@@ -217,7 +217,7 @@ private
   def benchmark(description = nil)
     self.status_info = description
     ####
-    @status_logger.debug(self.status_info)
+    @status_logger.info(self.status_info)
     time_before = Time.new
     result = yield
     duration = Time.new - time_before
@@ -289,7 +289,7 @@ private
       logger.warn "No directories monitored"
       self.status_info = "Idle - no directories monitored"
       #####
-      @status_logger.debug(self.status_info)
+      @status_logger.info(self.status_info)
       sleep 2.seconds.to_i
     end
   end

@@ -324,7 +324,10 @@ class Earthd
     message = "Uptime: #{format_uptime(Time.now - @start_time)}\n"
     message += "Status: #{@booted ? 'Running' : 'Booting'}\n"
     if @booted
-      message += "File Monitor Status: #{@file_monitor.status_info}\n"
+      #message += "File Monitor Status: #{@file_monitor.status_info}\n"
+      #TODO earthd_status log file must be configurable like earthd.log
+      status_info = read_status_from('/tmp/earthd_status.log')
+      message += "File Monitor Status: #{status_info}\n"
       message += "Daemon Version: #{@daemon_version.strip}\n"
     end
     message
@@ -489,12 +492,13 @@ class Earthd
 #      end
 
       while true
-        
-        logger.info("Inside main loop")
+        #for testing
+        #logger.info("Inside main loop")
         
         # create an extension point here
         # to extend the earthd functionality on each iteration
         # if no plugins are installed, earthd will do nothing
+        # TODO earthd_status logger must be sent also. After it is identified like the main logger 
         extension_point("main_loop",self.class.to_s,:logger => logger, :cache => cache, :only_initial_update => false, :force_update_time =>@config["override_update_interval"])       
 
 =begin

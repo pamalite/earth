@@ -153,3 +153,48 @@ def subdirectory_of?(parent, child)
     end
   end
 end
+
+# This method is used to read status from a log file
+# The status will be in the last line of that file
+def read_status_from(status_log_file)
+  last_line = last_line(status_log_file)
+  status_info = ""
+  status_info = parse_log_line(last_line) unless last_line.nil?
+  status_info
+end
+
+#This method is used to return the last line of the passed file
+def last_line(log_file)
+  last_line = nil
+  begin
+      file = File.new(log_file, "r")
+      counter = 0
+      while (line = file.gets)
+          counter = counter + 1
+          last_line = line
+      end
+      file.close
+      
+      #This could be used if the performance is affected by the size of the log file
+      #if number of lines is more than 500
+      #empty the log file
+      #if counter > 500
+      #  file = File.new(log_file, "w")
+      #  file.close
+      #end
+  rescue => err
+      puts "Exception: #{err}"
+      err
+  end
+  last_line
+end
+
+#This method is used parse a line in a log file
+#A line in the log file will contain a key word DEBUG, WARN or INFO
+#for earthd status, we will use INFO only
+def parse_log_line(line)
+  log_key_word = "INFO -- : "
+  index = line.index(log_key_word)
+  line = line[index+log_key_word.size, line.size] unless index.nil?
+  line.strip
+end
