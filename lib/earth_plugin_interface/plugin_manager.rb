@@ -148,8 +148,13 @@ class PluginManager
     extension_point=Earth::ExtensionPoint.find(:first, :conditions => { :name => ext_point_name,:host_plugin=>host_plugin })
     extension_point_id=extension_point.id
      
-    
-    Earth::PluginDescriptor::delete(existing_plugin) if existing_plugin
+    if existing_plugin
+      Earth::PluginDescriptor::delete(existing_plugin)
+      #delete all related extension points because a new version is installed
+      #if the new version has any extension points, the y will inserted later
+      destroy_related_extension_point(existing_plugin.name)
+    end
+    #Earth::PluginDescriptor::delete(existing_plugin) if existing_plugin
     #Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code => code, :sha1_signature => signature)
     Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code =>    b64_code, :sha1_signature => b64_signature,:extension_point_id =>extension_point_id)
     
