@@ -40,7 +40,7 @@ class RspAddFileMetadata < EarthPlugin
   end
   
   def self.plugin_version
-    2
+    3
   end
   
   def initialize

@@ -74,7 +74,7 @@ module EarthApi
     # * _attribute_names_ = TODO
     def self.delete_file_metadata(file, attribute_names)
       
-      for meta in metadata_values(file, attribute_names)
+      for meta in self.file_metadata_values(file, attribute_names)
         meta_id = meta.id
         # delete the association records
         delete_join_records(file, meta)
@@ -139,7 +139,7 @@ module EarthApi
     end
     
     #this method returns metadata values for a given file and specified attribute names
-    def self.metadata_values(file, attribute_names)
+    def self.file_metadata_values(file, attribute_names)
       result = []
       #retrieve attributes from their names
       attributes = Earth::MetadataAttribute.find(:all, :conditions => "name in " + for_sql(attribute_names)) 
