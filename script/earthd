@@ -227,13 +227,6 @@ class Earthd
       end
     when "status"
       response = talk_to_server("status")
-      
-      # Writes response to text file for server model to fetch for status update purpose.
-      # Create (or overwrite) a file named "earthd.status"
-      File.open("/tmp/earthd.status", "w") do |msg|
-        msg.puts(response)
-      end   
-         
       print response unless response.nil?
     end
   end

@@ -205,4 +205,3 @@ class ServersController < ApplicationController
   end
 
 end
-
