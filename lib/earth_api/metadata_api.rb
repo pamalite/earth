@@ -77,7 +77,7 @@ module EarthApi
       for meta in self.file_metadata_values(file, attribute_names)
         meta_id = meta.id
         # delete the association records
-        delete_join_records(file, meta)
+        delete_join_records_for_file(file, meta)
         
         # if this metadata is not linked to any other files, delete it
         # otherwise, leave it
@@ -90,7 +90,7 @@ module EarthApi
     end
     
     #This method is used to delete join records for a spcific file and specific metadata
-    def self.delete_join_records(file, meta)
+    def self.delete_join_records_for_file(file, meta)
       attribute = meta.metadata_attribute
       if(attribute.metadata_type == "string")
         Earth::FilesMetadataString.delete_all({:file_id => file.id, :metadata_string_id => meta.id})
@@ -124,7 +124,7 @@ module EarthApi
       children = dir.direct_children
       
       for i in 0..children.size-1 do
-        delete_all_files_metadata_under_dir(children[i])
+        delete_all_files_metadata_under_dir(children[i], attribute_names)
       end
     end
     
