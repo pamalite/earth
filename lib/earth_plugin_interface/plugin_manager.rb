@@ -99,7 +99,6 @@ class PluginManager
       require File.join(File.dirname(__FILE__), '..', '..', 'config', 'environment')
 
       uninstall_plugin = Earth::PluginDescriptor.find(:first, :conditions =>{ :name => plugin_name })   
-      #uninstall_extention_point=Earth::ExtensionPoints.find(:first, :conditions =>{ :id =>uninstall_plugin.extension_point_id }) 
 
     rescue Errno::ENOENT
        raise PluginManagerError, "No such plugin installed  in  database!"
@@ -108,7 +107,18 @@ class PluginManager
        return false
     end
     destroy_related_extension_point(plugin_name)
-    #TODO un_install all related plugins
+    
+    # Run plugin migration
+    code = Base64.decode64(uninstall_plugin.code)
+    signature = Base64.decode64(uninstall_plugin.sha1_signature)
+    
+    uninstalled_plugin_class = get_plugin_class(code, signature) 
+    if uninstalled_plugin_class.respond_to? 'migration_down'
+      uninstalled_plugin_class.migration_down
+    end
+    
+    #TODO uninstall all related plugins
+    #Finally, delete the plugin
     Earth::PluginDescriptor::delete(uninstall_plugin)
   end
     
