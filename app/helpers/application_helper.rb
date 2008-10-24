@@ -17,6 +17,18 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
 
+  $the_sections = [:index, :flat,:show]
+
+  $tab_info =
+    [
+      { :title => "navigation", :controller => "browser", :action => "show" },
+      { :title => "all files",  :controller => "browser", :action => "flat" },
+      { :title => "radial",    :controller => "graph",   :action => "index" }
+    ]
+
+  # Possible to add a view plugin hook here?
+  #include UsagesHelper
+
   def self_and_ancestors_up_to(directory, parent_dir)
     if parent_dir.nil?
       directory.self_and_ancestors
@@ -39,6 +51,7 @@ module ApplicationHelper
 
 
   def ApplicationHelper::human_units_of(size)
+    size = Kernel.Float(size)
     case 
       when size < 1.kilobyte: 'Bytes'
       when size < 1.megabyte: 'KB'
@@ -142,17 +155,16 @@ module ApplicationHelper
     end
   end
   
-  def tab_info
-    [ 
-      { :title => "navigation", :controller => "browser", :action => "show" },
-      { :title => "all files",  :controller => "browser", :action => "flat" },
-      { :title => "radial",    :controller => "graph",   :action => "index" }, 
-      # Ken: Added usage browser tab
-      { :title => "user usages", :controller => "browser", :action => "usages" },
-      # Keane: Added category tab
-      { :title => "category",    :controller => "browser",   :action => "category" }
-    ]
-  end
+  #def tab_info
+  #  [
+  #    { :title => "navigation", :controller => "browser", :action => "show" },
+  #    { :title => "all files",  :controller => "browser", :action => "flat" },
+  #    { :title => "radial",    :controller => "graph",   :action => "index" }
+  #    # Ken: Added usage browser tab
+  #    #{ :title => "user usages", :controller => "browser", :action => "usages" }
+  #  ]
+  #end
+
 
 private
 

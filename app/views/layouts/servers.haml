@@ -18,22 +18,25 @@
 
 %html
   %head
+    = javascript_include_tag :defaults
     %meta{"http-equiv" => "Content-Type", :content => "text/html; charset=utf8"}/
     %title
       - if @server
         = controller.action_name == 'show' ? '' : controller.action_name + " " + @server.name + " - "
       Administration - Earth
     = stylesheet_link_tag 'servers'
-  %body
+    
+  %body{}
     %a{:href => url_for(:params => { :controller => :browser, :action => :show })}
       #Banner
         / Holding Space for a Banner or a Logo
+
     %p{:style => "color: green"}= flash[:notice]
     = yield
+
     #footer
       = link_to("Home", { :controller => :browser })
       |
       = if params[:action] != "index" then link_to("Administration Home", { :action => :index }) else "Administration Home" end
       |
-      = "Earth #{ApplicationHelper.earth_version}"
- 
+      = "Earth #{ApplicationHelper.earth_version}" 

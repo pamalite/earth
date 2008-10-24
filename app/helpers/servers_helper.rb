@@ -15,6 +15,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 module ServersHelper
+
   def daemon_status(server)
     if server.daemon_alive?
       server.cache_complete? ? "up" : "incomplete"
@@ -24,4 +25,19 @@ module ServersHelper
       "unknown"
     end
   end
+
+  def daemon_alive(server)
+    if server.daemon_alive?
+      true
+    elsif server.daemon_version.nil?
+      false
+    else
+      false
+    end
+  end
+
+  def current_time(server)
+    "The current time is #{Time.now.to_s}"
+  end
+  
 end

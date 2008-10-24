@@ -2,3 +2,6 @@
 .svn
 log
 tmp
+db/schema.rb
+log/*
+

@@ -14,6 +14,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+include UsageRoutes
+
 hostname_regex = /\w[\w-]*(\.\w[\w-]*)*/
 
 ActionController::Routing::Routes.draw do |map|
@@ -54,15 +56,6 @@ ActionController::Routing::Routes.draw do |map|
     :requirements => {:server => hostname_regex}
   map.connect '/browser/flat.:format/:server*path', :controller => "browser", :action => "flat",
     :requirements => {:server => hostname_regex}
-
-  # Ken: setup controller "browser", action "usages"
-  map.connect '/browser/usages', :controller => "browser", :action => "usages"
-  map.connect '/browser/usages/:server', :controller => "browser", :action => "usages",
-    :requirements => {:server => hostname_regex}
-  map.connect '/browser/usages/:server*path', :controller => "browser", :action => "usages",
-    :requirements => {:server => hostname_regex}
-  map.connect '/browser/usages.:format/:server*path', :controller => "browser", :action => "usages",
-    :requirements => {:server => hostname_regex}
     
   #Keane: setup controller "browser", action "category"
   map.connect '/browser/category', :controller => "browser", :action => "category"
@@ -73,7 +66,8 @@ ActionController::Routing::Routes.draw do |map|
   map.connect '/browser/category.:format/:server*path', :controller => "browser", :action => "category",
     :requirements => {:server => hostname_regex}
     
-    
+  mapPluginRoute(map, hostname_regex)
+
   # setup controller "graph", action "show"
   map.connect '/graph/show', :controller => "graph", :action => "show"
   map.connect '/graph/show/:server', :controller => "graph", :action => "show",
@@ -93,6 +87,14 @@ ActionController::Routing::Routes.draw do |map|
   map.connect '/servers/edit/:server', :controller => "servers", :action => "edit",
     :requirements => {:server => hostname_regex}
   map.connect '/servers/update/:server', :controller => "servers", :action => "update",
+    :requirements => {:server => hostname_regex}
+
+  # FL: setup controller "server", action "configure"
+  map.connect '/servers/configure/:server', :controller => "servers", :action => "configure",
+    :requirements => {:server => hostname_regex}
+
+  # FL: setup controller "server", action "execute"
+  map.connect '/servers/execute/:server', :controller => "servers", :action => "execute",
     :requirements => {:server => hostname_regex}
 
   # Allow downloading Web Service WSDL as a file with an extension

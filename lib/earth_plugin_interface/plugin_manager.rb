@@ -1,15 +1,15 @@
 # Copyright (C) 2007 Rising Sun Pictures and Matthew Landauer
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -40,7 +40,7 @@ class PluginManager
     if @trusted_certificates.nil?
       @trusted_certificates = []
       trusted_certificate_directory = File.join(File.dirname(__FILE__), "..", "..", "config", "certificates")
-      Dir.entries(trusted_certificate_directory).each do |filename| 
+      Dir.entries(trusted_certificate_directory).each do |filename|
         certificate_file = File.join(trusted_certificate_directory, filename)
         if File.file?(certificate_file) and File.readable?(certificate_file)
           begin
@@ -82,6 +82,7 @@ class PluginManager
     EarthPlugin.on_inheritance do |child|
       @plugin_class = child
     end
+    
     eval("module PluginModule_#{@@plugin_module_counter}\n" + code + "\nend\n")
     @@plugin_module_counter +=1
     new_plugin_class = @plugin_class
@@ -90,7 +91,7 @@ class PluginManager
 
     new_plugin_class
   end
-
+  
   def install_from_file(plugin_filename)
     code = File.read(plugin_filename)
     
@@ -114,8 +115,17 @@ class PluginManager
         raise PluginManagerError, "Refusing to install plugin: A newer version of this plugin is already installed (#{existing_plugin.version} > #{new_plugin_class.plugin_version})."
       end
     end
+    
+    # Ken: Due to the problem with PostgresSQL, Ruby and Rails not sharing a 
+    #      common ground with UTF-8 encoding, we will now encode all codes 
+    #      and signatures into Base64 strings and store it into the databse 
+    #      without loosing integrity
+    b64_code = Base64.b64encode(code)
+    b64_signature = Base64.b64encode(signature)
+    
     Earth::PluginDescriptor::delete(existing_plugin) if existing_plugin
-    Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code => code, :sha1_signature => signature)
+    #Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code => code, :sha1_signature => signature)
+    Earth::PluginDescriptor::create(:name => new_plugin_class.plugin_name, :version => new_plugin_class.plugin_version, :code => b64_code, :sha1_signature => b64_signature)
   end
 
   def load_plugin(name, last_loaded_version)
@@ -126,11 +136,26 @@ class PluginManager
     end
     return nil unless newPlugin
 
-    new_plugin_class = get_plugin_class(newPlugin.code, newPlugin.sha1_signature)
+    # Ken: Since we stored the plugins in Base64 strings, we will need to decode
+    #      them before we use.
+    code = Base64.decode64(newPlugin.code)
+    signature = Base64.decode64(newPlugin.sha1_signature)
+    
+    #new_plugin_class = get_plugin_class(newPlugin.code, newPlugin.sha1_signature)
+    new_plugin_class = get_plugin_class(code, signature)
     
     #logger.info("New plugin \"#{name}\" available (version #{validated_plugin_class.plugin_version})")
     
     new_plugin_class.new
   end
-  
+
+  def load_all_plugin_names
+    allPluginNames = Earth::PluginDescriptor::find(:all)
+    listPluginNames = Array.new
+    allPluginNames.each do |pn|
+      pname = pn.name
+      listPluginNames << pname
+    end
+    return listPluginNames
+  end
 end
