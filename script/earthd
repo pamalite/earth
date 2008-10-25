@@ -16,6 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+LOAD_FILE_MONITOR_AS_PLUGIN = false
+
 require 'optparse'
 require 'ostruct'
 require 'socket'
@@ -328,7 +330,7 @@ class Earthd
     message = "Uptime: #{format_uptime(Time.now - @start_time)} <br>\n"
     message += "Status: #{@booted ? 'Running' : 'Booting'} <br>\n"
     if @booted
-      # message += "File Monitor Status: #{@file_monitor.status_info}\n"
+      message += "File Monitor Status: #{@file_monitor.status_info}\n"
       message += "Daemon Version: #{@daemon_version.strip} <br>\n"
     end
     message
@@ -427,6 +429,9 @@ class Earthd
     # Set environment to run in
     ENV["RAILS_ENV"] = @config["rails_environment"]
     require File.join(File.dirname(__FILE__), '../config/environment')
+    if not LOAD_FILE_MONITOR_AS_PLUGIN
+      require File.join(File.dirname(__FILE__), '..', 'lib', 'earth_plugins', 'file_monitor.rb')
+    end
   end
 
   def daemon_stop()
@@ -501,29 +506,55 @@ class Earthd
       @booted = true
       logger.info("Entering main loop")
 
-      @loaded_plugin_names = {}
+      cache = {}
+
+      loaded_plugin_versions = {}
 
       @plugin_manager = PluginManager.new
 
-      @currentplugin = nil
+      last_known_good_file_monitor = nil
+
+      if not LOAD_FILE_MONITOR_AS_PLUGIN
+        @file_monitor = FileMonitor.new
+      end
 
       while true
 
         begin
-          logger.info("Loading plugins from database.\n")
-          @loaded_plugin_names = @plugin_manager.load_all_plugin_names
-          raise RuntimeError, "No plugin found in database!" unless @loaded_plugin_names
-					@loaded_plugin_names.each do |pname|
-						@currentplugin = @plugin_manager.load_plugin(pname.to_s, nil) unless @currentplugin
-						@currentplugin.logger = logger
-						@currentplugin.main
+          if LOAD_FILE_MONITOR_AS_PLUGIN
+            @file_monitor = @plugin_manager.load_plugin("EarthFileMonitor", loaded_plugin_versions["EarthFileMonitor"]) || @file_monitor
+            raise RuntimeError, "No file monitor plugin installed." unless @file_monitor
+            if loaded_plugin_versions["EarthFileMonitor"].nil? or loaded_plugin_versions["EarthFileMonitor"] < @file_monitor.class.plugin_version
+              loaded_plugin_versions["EarthFileMonitor"] = @file_monitor.class.plugin_version
+            end
+            
+            raise RuntimeError, "No file monitor found in database!" unless @file_monitor
+            logger.info("Using file monitor version #{@file_monitor.class.plugin_version}")
           end
+          @file_monitor.logger = logger
+          @file_monitor.iteration(cache, false, @config["override_update_interval"])
+          if last_known_good_file_monitor and last_known_good_file_monitor != @file_monitor
+            Class.remove_class(last_known_good_file_monitor.class)
+          end
+          last_known_good_file_monitor = @file_monitor
         rescue => err
-          raise RuntimeError, "Plugin loading loop died!."
+          if last_known_good_file_monitor \
+            and last_known_good_file_monitor != @file_monitor \
+            and LOAD_FILE_MONITOR_AS_PLUGIN
+
+            logger.error("Daemon caught fatal error from file monitor") 
+            logger.error(err)
+            logger.warn("Retrying with last known good file monitor version") 
+            Class.remove_class(@file_monitor)
+            @file_monitor = last_known_good_file_monitor
+            retry
+          else
+            raise
+          end
         end
       end
     rescue => err
-      logger.fatal("Exiting: Daemon died")
+      logger.fatal("Exiting: Daemon died")      
       logger.fatal(err)
       $stderr.puts "The earth daemon has died. You can find additional information in #{@log_file_name}"
     ensure
