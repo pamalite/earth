@@ -23,7 +23,9 @@ module ApplicationHelper
     [
       { :title => "navigation", :controller => "browser", :action => "show" },
       { :title => "all files",  :controller => "browser", :action => "flat" },
-      { :title => "radial",    :controller => "graph",   :action => "index" }
+      { :title => "radial",    :controller => "graph",   :action => "index" },
+      # Keane: Added category tab
+      { :title => "category",    :controller => "browser",   :action => "category" }
     ]
 
   # Possible to add a view plugin hook here?
