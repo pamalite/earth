@@ -1,3 +1,5 @@
+#!/usr/bin/env ruby
+
 # Copyright (C) 2007 Rising Sun Pictures and Matthew Landauer
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -14,29 +16,42 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-module Earth
-  class MetadataString < ActiveRecord::Base
-    belongs_to :metadata_attribute
-    has_and_belongs_to_many :files
-   
-    # override the create method to avoid redundancy
-    # if the new record values are already in the database, 
-    #     do not create an equivelant record
-    def create
-      #look for equivelant to avoid redundancy
-      old = MetadataString.find(:first, :conditions => attributes)
-      
-      if old.nil?
-        #no equivelant records
-        #creat new one
-        super
-      else
-        #there is an equivelant record
-        #do not create
-        #just the association will be created  
-        self.id = old.id
-      end
-    end
-  
-  end
+require File.join(File.dirname(__FILE__), '..', 'lib', 'earth_plugin_interface', 'plugin_manager')
+require 'optparse'
+
+opts = OptionParser.new
+opts.banner = <<END_OF_STRING
+USAGE: 
+  #{$0} <plugin file> -  Install the earth daemon plugin at the given path
+EXAMPLE:
+  #{$0} lib/earth_plugins/file_monitor.rb
+END_OF_STRING
+opts.on_tail("-h", "--help", "Show this message") do
+  puts opts
+  exit
+end
+opts.separator "General Options:"
+
+begin
+  opts.parse!(ARGV)
+rescue
+  puts opts
+  exit 1
+end
+
+if ARGV.length < 1
+  puts opts
+  exit 1
+end
+
+plugin_name = ARGV[0]
+
+
+plugin_manager = PluginManager.new
+
+begin
+  plugin = plugin_manager.uninstall(plugin_name)
+rescue => err
+  $stderr.puts "Unable to unstall plug-in: #$!"
+  raise
 end

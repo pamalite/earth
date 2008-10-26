@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-LOAD_FILE_MONITOR_AS_PLUGIN = false
+LOAD_FILE_MONITOR_AS_PLUGIN = true
 
 require 'optparse'
 require 'ostruct'
@@ -26,7 +26,9 @@ require 'erb'
 require 'yaml'
 require File.join(File.dirname(__FILE__), '..', 'lib', 'earth_plugin_interface', 'earth_plugin.rb')
 require File.join(File.dirname(__FILE__), '..', 'lib', 'earth_plugin_interface', 'plugin_manager.rb')
+require File.join(File.dirname(__FILE__), '..', 'lib', 'earth_plugin_interface', 'extensions.rb')
 require File.join(File.dirname(__FILE__), '..', 'lib', 'earthd_helper.rb')
+include Extensions
 
 BANNER = <<END_OF_STRING
 
@@ -330,8 +332,11 @@ class Earthd
     message = "Uptime: #{format_uptime(Time.now - @start_time)} <br>\n"
     message += "Status: #{@booted ? 'Running' : 'Booting'} <br>\n"
     if @booted
-      message += "File Monitor Status: #{@file_monitor.status_info} <br>\n"
-      message += "Daemon Version: #{@daemon_version.strip} <br>\n"
+      #message += "File Monitor Status: #{@file_monitor.status_info}\n"
+      #TODO earthd_status log file must be configurable like earthd.log
+      status_info = read_status_from('/tmp/earthd_status.log')
+      message += "File Monitor Status: #{status_info}\n"
+      message += "Daemon Version: #{@daemon_version.strip}\n"
     end
     message
   end
@@ -514,12 +519,21 @@ class Earthd
 
       last_known_good_file_monitor = nil
 
-      if not LOAD_FILE_MONITOR_AS_PLUGIN
-        @file_monitor = FileMonitor.new
-      end
+#      if not LOAD_FILE_MONITOR_AS_PLUGIN
+#        @file_monitor = FileMonitor.new
+#      end
 
       while true
+        #for testing
+        #logger.info("Inside main loop")
+        
+        # create an extension point here
+        # to extend the earthd functionality on each iteration
+        # if no plugins are installed, earthd will do nothing
+        # TODO earthd_status logger must be sent also. After it is identified like the main logger 
+        extension_point("main_loop",self.class.to_s,:logger => logger, :cache => cache, :only_initial_update => false, :force_update_time =>@config["override_update_interval"])       
 
+=begin
         begin
           if LOAD_FILE_MONITOR_AS_PLUGIN
             @file_monitor = @plugin_manager.load_plugin("EarthFileMonitor", loaded_plugin_versions["EarthFileMonitor"]) || @file_monitor
@@ -552,6 +566,7 @@ class Earthd
             raise
           end
         end
+=end
       end
     rescue => err
       logger.fatal("Exiting: Daemon died")      

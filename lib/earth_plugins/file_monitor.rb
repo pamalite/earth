@@ -13,8 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-require File.join('lib', 'earth_plugins', 'rsp_metadata.rb')
-require File.join('lib', 'earth_plugins', 'metadata.rb')
 
 class FileMonitor < EarthPlugin
   cattr_accessor :log_all_sql
@@ -24,6 +22,19 @@ class FileMonitor < EarthPlugin
   self.status_info = "Starting up"
 
   @logger = nil
+  
+
+  #TODO method comments
+  def initialize
+    #TODO get it as parameter
+    @status_logger = Logger.new("/tmp/earthd_status.log")
+    
+    
+    
+    #bring the parameters from the plug-in session
+    @logger = get_param(:logger)
+    iteration(get_param(:cache), get_param(:only_initial_update), get_param(:force_update_time))
+  end
 
   def logger=(logger)
     @logger = logger
@@ -32,13 +43,30 @@ class FileMonitor < EarthPlugin
   def logger
     @logger || RAILS_DEFAULT_LOGGER
   end
+  
+  def status_logger
+    @status_logger
+  end
 
   def self.plugin_name
     "EarthFileMonitor"
   end
 
   def self.plugin_version
-    131
+    137
+  end
+  
+  def self.migration_up
+    Earth::ExtensionPoint.create :name => "add_file", :host_plugin => "FileMonitor", :description => "when a file is added"
+    Earth::ExtensionPoint.create :name => "delete_file", :host_plugin => "FileMonitor", :description => "before a file is deleted"
+    Earth::ExtensionPoint.create :name => "delete_dir", :host_plugin => "FileMonitor", :description => "before a directory is deleted"
+  end
+  
+  def self.migration_down
+    related_extension_points = Earth::ExtensionPoint.find(:all, :conditions => {:host_plugin => "FileMonitor"})
+    for ext in related_extension_points do
+      ext.destroy
+    end
   end
 
   class ETAPrinter
@@ -63,6 +91,8 @@ class FileMonitor < EarthPlugin
           time_remaining = items_remaining * time_per_item
           eta_string = "#{@description} [#{@items_completed}/#{@number_of_items}] ETA: #{(Time.local(2007) + (time_remaining)).strftime('%H:%M:%S')}s"
           @file_monitor.status_info = eta_string
+          ####
+          @file_monitor.status_logger.info(@file_monitor.status_info)
         end
       end
     end
@@ -187,6 +217,8 @@ private
 
   def benchmark(description = nil)
     self.status_info = description
+    ####
+    @status_logger.info(self.status_info)
     time_before = Time.new
     result = yield
     duration = Time.new - time_before
@@ -264,6 +296,8 @@ private
     else
       logger.warn "No directories monitored"
       self.status_info = "Idle - no directories monitored"
+      #####
+      @status_logger.info(self.status_info)
       sleep 2.seconds.to_i
     end
   end
@@ -338,8 +372,14 @@ private
         Earth::File.benchmark("Creating file with name #{name}", Logger::DEBUG, !log_all_sql) do
             new_file = directory.files.create(:name => name, :stat => stats[name])
             
-            # save the new file metadata
-            Metadata.save_file_metadata(new_file)
+            #TODO OLD delete the next two lines 
+            #save the new file metadata
+            #@metadata_plugin.save_file_metadata(new_file)
+            
+            # a new file is added to the database
+            # create an extension point 
+            #debugger
+            extension_point("add_file",self.class.to_s,:file => new_file)
 			
           end        
         end
@@ -355,7 +395,12 @@ private
               
               #adding code to acquire metadata and save it - update
               logger.debug("update_non_recursive::Saving Metadata for file_id: #{file.id}")
-              Metadata.save_file_metadata(file)
+              #TODO OLD delete the next line
+              #@metadata_plugin.save_file_metadata(file)
+
+              # a new file is added to the database
+              # create an extension point 
+              extension_point("add_file",self.class.to_s,:file => file)
               
               # If the file has changed
               if file.stat != stats[file.name]
@@ -368,7 +413,13 @@ private
               # If the file has been deleted
             else
               # delete this file metadata before deleting it
-              Metadata.delete_file_metadata(file)
+              
+              #TODO OLD delete the next line
+              #@metadata_plugin.delete_file_metadata(file)
+
+              # a new file is deleted from the database
+              # create an extension point 
+              extension_point("delete_file",self.class.to_s,:file => file)
               
               Earth::Directory.benchmark("Removing file with name #{file.name}", Logger::DEBUG, !log_all_sql) do
                 directory.files.delete(file)
@@ -390,7 +441,14 @@ private
           
           Earth::Directory.benchmark("Removing directory with name #{dir.name}", Logger::DEBUG, !log_all_sql) do
             #deleting all files_metadata for all files under this directory and its subdirectories
-            Metadata.delete_all_files_metadata_under_dir(dir)
+            
+            #TODO OLD delete the next line
+            #@metadata_plugin.delete_all_files_metadata_under_dir(dir)
+
+            # a directory is deleted from the database
+            # create an extension point 
+            extension_point("delete_dir",self.class.to_s,:dir => dir)
+            
             directory.child_delete(dir)
           end
         end

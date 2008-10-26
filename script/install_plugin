@@ -46,10 +46,14 @@ end
 
 plugin_file = ARGV[0]
 
+ext_point_name=ARGV[1]
+
+host_plugin=ARGV[2]
+
 plugin_manager = PluginManager.new
 
 begin
-  plugin = plugin_manager.install_from_file(plugin_file)
+  plugin = plugin_manager.install_from_file(plugin_file,ext_point_name,host_plugin)
 rescue => err
   $stderr.puts "Unable to install plug-in: #$!"
   raise

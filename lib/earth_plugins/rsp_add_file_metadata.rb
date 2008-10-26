@@ -1,18 +1,56 @@
-# This class provide methods for managing RSP metadata
+# This class TODO comments
 #
 # Author:: Mohammad Bamogaddam
- 
- 
-class RspMetadata < EarthPlugin
+
+class RspAddFileMetadata < EarthPlugin
   
   # constant variable used to save rsp naming convention
   RSP_KEYS = ["job","sequence","shot"]
+  RSP_KEYS_TYPES = ["string","string","string"]
   
   # the +rsp_keys+ method returns array of rsp keys
   def self.rsp_keys
     RSP_KEYS
   end
   
+  def self.plugin_name
+    "EarthRspAddFileMetadata"
+  end
+  
+  def self.migration_up
+    plugin_object = Earth::PluginDescriptor.find_by_name(self.plugin_name)
+    # add rsp_keys in the metadata_attributes table
+    for i in 0..RSP_KEYS.size-1 do
+      Earth::MetadataAttribute.create :name => RSP_KEYS[i], :metadata_type => RSP_KEYS_TYPES[i], :plugin_descriptor_id => plugin_object.id
+    end
+    
+    # add metadata to all existed files
+    files = Earth::File.find(:all)
+    add_file_metadata = RspAddFileMetadata.new
+    for file in files do
+      metadata = add_file_metadata.file_metadata(file)
+      EarthApi::MetadataApi.save_file_metadata(file, metadata)
+    end
+  end
+  
+  def self.migration_down
+    plugin_object = Earth::PluginDescriptor.find_by_name(self.plugin_name)
+    # remove all related metadata
+    EarthApi::MetadataApi.remove_metadata_for_plugin(plugin_object)
+  end
+  
+  def self.plugin_version
+    3
+  end
+  
+  def initialize
+    # read the (file) parameter from the plugin session
+    file = get_param(:file)
+    unless file.nil?
+      metadata = file_metadata(file)
+      EarthApi::MetadataApi.save_file_metadata(file, metadata)
+    end
+  end
   
   # the +file_metadata+ method returns hash of keys and values
   # representing the passed file metadata
@@ -34,9 +72,7 @@ class RspMetadata < EarthPlugin
     metadata = parse_path(path)
     return metadata
   end
-   
   
-   
   private
   
   # the +parse_path+ parses a given path looking for keys
