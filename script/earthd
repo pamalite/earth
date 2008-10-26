@@ -330,7 +330,7 @@ class Earthd
     message = "Uptime: #{format_uptime(Time.now - @start_time)} <br>\n"
     message += "Status: #{@booted ? 'Running' : 'Booting'} <br>\n"
     if @booted
-      message += "File Monitor Status: #{@file_monitor.status_info}\n"
+      message += "File Monitor Status: #{@file_monitor.status_info} <br>\n"
       message += "Daemon Version: #{@daemon_version.strip} <br>\n"
     end
     message
